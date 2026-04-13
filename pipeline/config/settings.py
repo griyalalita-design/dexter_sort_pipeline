@@ -30,12 +30,12 @@ GSHEET = {
         "url": "https://docs.google.com/spreadsheets/d/1BnHzPmB6V3WCgzPBvADczTDpcHD1Htds3VPLoxKVb-k/edit?gid=1021555673#gid=1021555673",
         "sheet_id": "1BnHzPmB6V3WCgzPBvADczTDpcHD1Htds3VPLoxKVb-k",
         "tabs": {
-            "poa_iv_b2b_all_b2c_cold": "POA - IV | B2B All & B2C Cold",
-            "poa_iv_keyshipper": "POA - IV | Keyshipper" ,
-            "poa_iv_others": "POA - IV | Others",
-            "lnd_rate_b2b_all_b2c_cold": "LnD Rate | B2B All & B2C Cold",
-            "lnd_rate_keyshipper" : "LnD Rate | Keyshipper",
-            "lnd_rate_others":"LnD Rate | Others"
+            "poa_iv_b2b_all_b2c_cold": "POA - IV B2B All & B2C Cold",
+            "poa_iv_keyshipper": "POA - IV Keyshipper" ,
+            "poa_iv_others": "POA - IV Others",
+            "lnd_rate_b2b_all_b2c_cold": "LnD Rate B2B All & B2C Cold",
+            "lnd_rate_keyshipper" : "LnD Rate Keyshipper",
+            "lnd_rate_others":"LnD Rate Others"
               # sesuaikan nama tab
         },
         # Range yang di-clear di semua tab sanggahan (sesuaikan)
