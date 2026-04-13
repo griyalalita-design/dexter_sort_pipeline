@@ -18,9 +18,11 @@ jobs:
           python-version: "3.12"
 
       - name: Install deps
+        working-directory: pipeline
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
       - name: Run Day 1
+        working-directory: pipeline
         run: python jobs/day1.py
