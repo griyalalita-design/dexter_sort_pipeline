@@ -1,0 +1,232 @@
+# ============================================================
+# settings.py — Semua konfigurasi pipeline ada di sini
+# Kamu cukup update file ini aja, ga perlu utak-atik file lain
+# ============================================================
+
+# ── Google Service Account ───────────────────────────────────
+# Letakkan file JSON service account kamu di root project
+# lalu isi nama file-nya di sini
+SERVICE_ACCOUNT_FILE = "service_account.json"
+
+# ── Google Sheets Links ──────────────────────────────────────
+GSHEET = {
+    # Tracker utama (tempat dump semua data performance)
+    "tracker": {
+        "url": "https://docs.google.com/spreadsheets/d/10jwwERVKLvdrk7tkmqVXeZHGp3Q1lV_2IjFsc6fXQhQ/edit?gid=911977561#gid=911977561",
+        "sheet_id": "10jwwERVKLvdrk7tkmqVXeZHGp3Q1lV_2IjFsc6fXQhQ",  # ambil dari URL
+        "tabs": {
+            "raw_data_all":  "Raw Data [All]",
+            "raw_data_cost": "Raw Data [Cost]"
+        },
+        # Range yang di-clear saat Day 1 (sesuaikan)
+        "clear_ranges": {
+            "raw_data_all": ["C4:I", "P4:V", "AC4:AI","AP4:AR","AY4:BA","BH4:BJ","BO4:BT"],
+            "raw_data_cost": ["B3:K"]
+        },
+    },
+
+    # Gsheet sanggahan
+    "sanggahan": {
+        "url": "https://docs.google.com/spreadsheets/d/1BnHzPmB6V3WCgzPBvADczTDpcHD1Htds3VPLoxKVb-k/edit?gid=1021555673#gid=1021555673",
+        "sheet_id": "1BnHzPmB6V3WCgzPBvADczTDpcHD1Htds3VPLoxKVb-k",
+        "tabs": {
+            "poa_iv_b2b_all_b2c_cold": "POA - IV | B2B All & B2C Cold",
+            "poa_iv_keyshipper": "POA - IV | Keyshipper" ,
+            "poa_iv_others": "POA - IV | Others",
+            "lnd_rate_b2b_all_b2c_cold": "LnD Rate | B2B All & B2C Cold",
+            "lnd_rate_keyshipper" : "LnD Rate | Keyshipper",
+            "lnd_rate_others":"LnD Rate | Others"
+              # sesuaikan nama tab
+        },
+        # Range yang di-clear di semua tab sanggahan (sesuaikan)
+        "clear_ranges": {
+            "poa_iv_b2b_all_b2c_cold": ["A3:G"],
+            "poa_iv_keyshipper": ["A3:G"],
+            "poa_iv_others": ["A3:G"],
+            "lnd_rate_b2b_all_b2c_cold": ["A3:C"],
+            "lnd_rate_keyshipper": ["A3:C"],
+            "lnd_rate_others": ["A3:C"]
+        }
+    },
+
+    # # Gsheet PNS — sumber list shipper (JANGAN diedit, read only)
+    # "pns": {
+    #     "url": "https://docs.google.com/spreadsheets/d/PNS_ID",
+    #     "sheet_id": "PNS_ID",
+    #     "tabs": {
+    #         "b2b": "B2B",   # sesuaikan nama tab
+    #         "fs":  "FS BD", # sesuaikan nama tab
+    #     },
+    #     # Kolom yang diambil dari PNS (sesuaikan)
+    #     "columns_to_copy": ["shipper_id", "shipper_name", "parent_id", "category"]
+    # },
+
+    # Gsheet Key Shipper — milik kamu sendiri, copy dari PNS
+    "key_shipper": {
+        "url": "https://docs.google.com/spreadsheets/d/1Gk_pMm40hHs1jXGTtApLMWXD00HiiRchI2MO-q1HUPQ/edit?gid=1784764051#gid=1784764051",
+        "sheet_id": "1Gk_pMm40hHs1jXGTtApLMWXD00HiiRchI2MO-q1HUPQ",
+        "tabs": {
+            "main": "check",
+        }
+    },
+
+    # Gsheet DWS dari tim Sort
+    "dws": {
+        "url": "https://docs.google.com/spreadsheets/d/1wm7fyvG_AMlK8U2gCBKDr0_Hb_17fFKW21373vjf2xM/edit?gid=0#gid=0",
+        "sheet_id": "1wm7fyvG_AMlK8U2gCBKDr0_Hb_17fFKW21373vjf2xM",
+        "tabs": {
+            "main": "USE THIS", # sesuaikan nama tab
+        }
+    },
+
+    # Gsheet CPP dari tim PSP
+    "cpp": {
+        "url": "https://docs.google.com/spreadsheets/d/CPP_ID",
+        "sheet_id": "CPP_ID",
+        "tabs": {
+            "main": "CPP", # sesuaikan nama tab
+        }
+    },
+
+    # Gsheet Converter (data ke rupiah)
+    "converter": {
+        "url": "https://docs.google.com/spreadsheets/d/CONVERTER_ID",
+        "sheet_id": "CONVERTER_ID",
+        "tabs": {
+            "performance": "Tab A",      # sesuaikan nama tab
+            "recipient":   "Recipient",  # sesuaikan nama tab
+        }
+    },
+
+    # Gsheet config — tempat kamu simpen Metabase token
+    "config": {
+        "sheet_id": "CONFIG_ID",
+        "tabs": {
+            "main": "A",  # nama tab tempat token disimpen
+        },
+        "token_cell": "B2",  # cell tempat token Metabase
+    },
+}
+
+# ── Metabase ─────────────────────────────────────────────────
+METABASE = {
+    "base_url": "https://metabase.your-company.com",  # ganti dengan URL Metabase kamu
+
+    # Query IDs per jenis data
+    # Bisa dicek dari URL Metabase waktu buka query: /question/XXX
+    "queries": {
+        "poa_iv":  {"id": 1234, "name": "POA-IV"},   # TODO: isi ID asli
+        "lnd":     {"id": 5678, "name": "LnD"},       # TODO: isi ID asli
+    },
+
+    # Filter parameter per kategori shipper
+    # Ini yang nanti diisi waktu hit API Metabase
+    "shipper_filters": {
+        "b2b_cc": {
+            "param_name": "shipper_id",   # nama parameter di Metabase query
+            "source": "pns_b2b_cc",       # ambil dari data PNS kategori ini
+        },
+        "key_shipper": {
+            "param_name_parent": "parent_coalesce_id",
+            "param_name_shipper": "shipper_id",
+            "source": "pns_key_shipper",
+        },
+        "lazada_shopee": {
+            "param_name_parent": "parent_coalesce_id",
+            "source": "pns_lazada_shopee",
+        },
+    },
+}
+
+# ── Email ─────────────────────────────────────────────────────
+EMAIL = {
+    "sender": "your_email@company.com",       # TODO: ganti
+    "smtp_server": "smtp.gmail.com",           # ganti kalau bukan Gmail
+    "smtp_port": 587,
+    # Password disimpen di environment variable, bukan di sini
+    # Set di GitHub Secrets dengan nama EMAIL_PASSWORD
+
+    "recipients": {
+        "day2_notification": [
+            "recipient1@company.com",          # TODO: isi penerima notif tanggal 2
+        ],
+        "day6_fst": [
+            "fst_team@company.com",            # TODO: penerima notif FST tanggal 6
+        ],
+        "day10_reviewer": [
+            "reviewer@company.com",            # TODO: penerima notif reviewer
+        ],
+        "day14_reviewer": [
+            "reviewer@company.com",
+        ],
+        "day16_psp": [
+            "psp_team@company.com",            # TODO: penerima notif PSP
+        ],
+    },
+
+    # Body email per tanggal — edit sesuai kebutuhan
+    "body": {
+        "day2": """
+Hi Team,
+
+Data performance bulan {bulan} sudah tersedia di tracker.
+Silakan cek link berikut:
+
+Tracker: {tracker_url}
+Sanggahan: {sanggahan_url}
+
+Periode sanggahan: {start_date} s/d {end_date}
+
+Regards,
+Automation Pipeline
+        """,
+
+        "day6_fst": """
+Hi FST Team,
+
+Reminder: Data DWS untuk bulan {bulan} belum diupdate.
+Mohon segera update di link berikut: {dws_url}
+
+Regards,
+Automation Pipeline
+        """,
+
+        "day10_reviewer": """
+Hi Reviewer,
+
+Data sanggahan bulan {bulan} sudah bisa direview.
+Silakan cek: {sanggahan_url}
+
+Regards,
+Automation Pipeline
+        """,
+
+        "day14_reviewer": """
+Hi Reviewer,
+
+Reminder: Masih ada data sanggahan bulan {bulan} yang belum direview.
+Mohon segera review di: {sanggahan_url}
+
+Regards,
+Automation Pipeline
+        """,
+
+        "day16_psp": """
+Hi PSP Team,
+
+Data performance bulan {bulan} sudah final dan siap digunakan.
+
+Tracker  : {tracker_url}
+Sanggahan: {sanggahan_url}
+Converter: {converter_url}
+
+Regards,
+Automation Pipeline
+        """,
+    }
+}
+
+# ── Pipeline Schedule ─────────────────────────────────────────
+# Ini untuk referensi GitHub Actions
+# Tanggal yang pipeline jalan tiap bulan
+SCHEDULE_DAYS = [1, 2, 6, 10, 14, 15, 16]

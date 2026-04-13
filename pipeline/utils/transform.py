@@ -1,0 +1,164 @@
+# ============================================================
+# utils/transform.py — Semua transformasi data pake pandas
+# TIDAK ada API calls di sini, murni transformasi aja
+# ============================================================
+
+import pandas as pd
+from datetime import datetime, date
+from dateutil.relativedelta import relativedelta
+
+
+def get_last_month_range():
+    """
+    Hitung range bulan lalu.
+    Contoh: kalau sekarang April 2026, return (2026-03-01, 2026-03-31, 'Maret')
+    """
+    today = date.today()
+    first_day = (today.replace(day=1) - relativedelta(months=1))
+    last_day = today.replace(day=1) - relativedelta(days=1)
+    bulan_names = {
+        1: "Januari", 2: "Februari", 3: "Maret", 4: "April",
+        5: "Mei", 6: "Juni", 7: "Juli", 8: "Agustus",
+        9: "September", 10: "Oktober", 11: "November", 12: "Desember"
+    }
+    bulan_name = bulan_names[first_day.month]
+    return first_day, last_day, bulan_name
+
+
+def categorize_shippers(df_pns: pd.DataFrame):
+    """
+    Bagi shipper dari PNS ke 3 kategori.
+
+    Returns:
+        dict dengan keys: "b2b_cc", "key_shipper", "lazada_shopee"
+        masing-masing berisi list shipper_id
+    """
+    # TODO: sesuaikan kondisi filter dengan kolom yang ada di PNS
+    # Ini contoh, sesuaikan sama kolom category di data PNS kamu
+    b2b_cc = df_pns[df_pns["category"].isin(["B2B", "Cold Chain"])]["shipper_id"].astype(str).tolist()
+    key_shipper = df_pns[df_pns["category"] == "Key Shipper"]["shipper_id"].astype(str).tolist()
+    lazada_shopee = df_pns[df_pns["category"].isin(["Lazada", "Shopee"])]["parent_id"].astype(str).tolist()
+
+    print(f"Shipper B2B+CC: {len(b2b_cc)}")
+    print(f"Key Shipper: {len(key_shipper)}")
+    print(f"Lazada+Shopee: {len(lazada_shopee)}")
+
+    return {
+        "b2b_cc": b2b_cc,
+        "key_shipper": key_shipper,
+        "lazada_shopee": lazada_shopee,
+    }
+
+
+def transform_poa(df_raw: pd.DataFrame) -> pd.DataFrame:
+    """
+    Transformasi data POA-IV.
+    Pivot by origin hub: hit, not hit, total.
+
+    Args:
+        df_raw: DataFrame raw dari Metabase
+
+    Returns:
+        DataFrame hasil pivot
+    """
+    # TODO: sesuaikan nama kolom dengan hasil Metabase kamu
+    # Contoh pivot: origin_hub sebagai index, status sebagai columns
+    df = df_raw.copy()
+
+    pivot = df.pivot_table(
+        index="origin_hub",       # TODO: sesuaikan nama kolom
+        columns="status",         # TODO: sesuaikan nama kolom (hit/not hit)
+        values="shipment_id",     # TODO: sesuaikan nama kolom
+        aggfunc="count",
+        fill_value=0,
+    ).reset_index()
+
+    # Rename kolom biar rapi
+    pivot.columns.name = None
+    pivot["total"] = pivot.sum(axis=1, numeric_only=True)
+
+    return pivot
+
+
+def transform_lnd(df_raw: pd.DataFrame) -> pd.DataFrame:
+    """
+    Transformasi data LnD.
+    Filter hanya crossdock, lalu pivot kolom yang diperlukan.
+
+    Args:
+        df_raw: DataFrame raw dari Metabase
+
+    Returns:
+        DataFrame hasil transformasi
+    """
+    df = df_raw.copy()
+
+    # Filter crossdock aja
+    df = df[df["type"] == "crossdock"]  # TODO: sesuaikan nama kolom
+
+    # TODO: pivot sesuai kolom yang diperlukan
+    # Ini placeholder, sesuaikan dengan kebutuhan
+    pivot = df.pivot_table(
+        index="hub_id",           # TODO: sesuaikan
+        values="value",           # TODO: sesuaikan
+        aggfunc="sum",
+        fill_value=0,
+    ).reset_index()
+
+    return pivot
+
+
+def merge_with_staff(df_data: pd.DataFrame, df_staff: pd.DataFrame) -> pd.DataFrame:
+    """
+    Merge data performance dengan staff list tim SORT.
+
+    Args:
+        df_data  : DataFrame performance
+        df_staff : DataFrame staff list
+
+    Returns:
+        DataFrame hasil merge
+    """
+    # TODO: sesuaikan key merge dengan kolom yang ada
+    df_merged = df_data.merge(
+        df_staff,
+        on="hub_id",    # TODO: sesuaikan kolom key
+        how="left",
+    )
+    return df_merged
+
+
+def check_anomaly(df: pd.DataFrame, numeric_cols: list) -> pd.DataFrame:
+    """
+    Check anomaly di data: DIV/0, N/A, atau nilai kosong.
+
+    Args:
+        df           : DataFrame yang mau dicek
+        numeric_cols : list kolom numerik yang mau dicek
+
+    Returns:
+        DataFrame berisi baris-baris yang anomaly
+    """
+    anomaly_rows = pd.DataFrame()
+
+    for col in numeric_cols:
+        if col not in df.columns:
+            continue
+        # Check DIV/0 atau string error
+        mask_error = df[col].astype(str).str.contains("#DIV|#N/A|#REF|#VALUE", na=False)
+        # Check null
+        mask_null = df[col].isnull()
+        # Check nol (ga ada performance)
+        mask_zero = df[col] == 0
+
+        anomaly = df[mask_error | mask_null | mask_zero].copy()
+        if len(anomaly) > 0:
+            anomaly["anomaly_col"] = col
+            anomaly_rows = pd.concat([anomaly_rows, anomaly])
+
+    if len(anomaly_rows) > 0:
+        print(f"Ditemukan {len(anomaly_rows)} baris anomaly!")
+    else:
+        print("Tidak ada anomaly ditemukan.")
+
+    return anomaly_rows.drop_duplicates()
