@@ -25,4 +25,6 @@ jobs:
 
       - name: Run Day 1
         working-directory: pipeline
-        run: python jobs/day1.py
+        env:
+          PYTHONPATH: ${{ github.workspace }}/pipeline
+        run: python -m jobs.day1
