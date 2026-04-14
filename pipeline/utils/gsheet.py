@@ -1,4 +1,4 @@
-﻿"""
+"""
 gsheet.py
 ---------
 Responsibility: All Google Sheets operations.
@@ -48,13 +48,22 @@ def open_by_url(url: str) -> gspread.Spreadsheet:
 
 
 # --- Core ops ---
+def _a1(sheet_name: str, range_a1: str) -> str:
+    """
+    Build safe A1 notation. Always quote sheet names to handle spaces/symbols.
+    """
+    name = sheet_name
+    if not (name.startswith("'") and name.endswith("'")):
+        name = "'" + name.replace("'", "''") + "'"
+    return f"{name}!{range_a1}"
+
 
 def clear_range(spreadsheet_id: str, sheet_name: str, range_a1: str) -> None:
     """
     Clear a specific range (A1 notation) in a sheet tab.
     """
     wb = open_by_key(spreadsheet_id)
-    wb.values_clear(f"{sheet_name}!{range_a1}")
+    wb.values_clear(_a1(sheet_name, range_a1))
 
 
 def clear_sheet(spreadsheet_id: str, sheet_name: str) -> None:
@@ -88,7 +97,7 @@ def write_sheet(
     wb = open_by_key(spreadsheet_id)
     values = [df.columns.tolist()] + df.values.tolist() if not df.empty else [df.columns.tolist()]
     wb.values_update(
-        f"{sheet_name}!{start_cell}",
+        _a1(sheet_name, start_cell),
         params={"valueInputOption": "USER_ENTERED"},
         body={"values": values},
     )
@@ -108,7 +117,7 @@ def append_sheet(
     if not values:
         return
     wb.values_append(
-        f"{sheet_name}!{start_cell}",
+        _a1(sheet_name, start_cell),
         params={"valueInputOption": "USER_ENTERED"},
         body={"values": values},
     )
@@ -128,12 +137,12 @@ def copy_range(
     src = open_by_key(source_sheet_id)
     dest = open_by_key(dest_sheet_id)
 
-    values = src.values_get(f"{source_tab}!{source_range}").get("values", [])
+    values = src.values_get(_a1(source_tab, source_range)).get("values", [])
     if not values:
         return
 
     dest.values_update(
-        f"{dest_tab}!{dest_start_cell}",
+        _a1(dest_tab, dest_start_cell),
         params={"valueInputOption": "USER_ENTERED"},
         body={"values": values},
     )
