@@ -22,7 +22,70 @@ def _ranges_for_tab(clear_ranges, tab_key):
         return _iter_ranges(clear_ranges.get(tab_key, []))
     return _iter_ranges(clear_ranges)
 
+# ===========Buat Narik Data Key Shipper PNS ========================== #
+def _read_sheet_header_row2(sheet_id: str, tab_name: str) -> pd.DataFrame:
+    """
+    Read sheet where header is on row 2 (index 1).
+    """
+    ws = open_by_key(sheet_id).worksheet(tab_name)
+    all_values = ws.get_all_values()
+    if len(all_values) < 2:
+        raise ValueError("Sheet kurang dari 2 baris - header row 2 tidak ada.")
 
+    raw_header = all_values[1]
+    data_rows = all_values[2:]
+
+    cleaned = []
+    occ = {}
+    for h in raw_header:
+        h0 = (h or "").strip()
+        if h0 in occ:
+            occ[h0] += 1
+            h0 = f"{h0}_{occ[h0]}"
+        else:
+            occ[h0] = 0
+        cleaned.append(h0)
+
+    return pd.DataFrame(data_rows, columns=cleaned)
+
+
+def _update_key_shipper_from_pns() -> None:
+    """
+    Update Key Shipper sheet from PNS compile list.
+    """
+    if "pns" not in GSHEET:
+        raise ValueError("Config GSHEET['pns'] belum diisi.")
+    if "key_shipper" not in GSHEET:
+        raise ValueError("Config GSHEET['key_shipper'] belum diisi.")
+
+    pns = GSHEET["pns"]
+    key = GSHEET["key_shipper"]
+
+    df = _read_sheet_header_row2(pns["sheet_id"], pns["tabs"]["compile"])
+    df.columns = df.columns.str.strip()
+
+    col_global = pns["columns"]["global_id"]
+    col_cat = pns["columns"]["category"]
+
+    if col_global not in df.columns or col_cat not in df.columns:
+        raise ValueError("Kolom Global ID / Shipper Service Category tidak ditemukan di PNS.")
+
+    df = df[
+        pd.to_numeric(
+            df[col_global].replace(r"^\s*#?N/?A.*$", pd.NA, regex=True),
+            errors="coerce",
+        ).notna()
+    ]
+
+    key_df = df[[col_global, col_cat]].copy()
+    key_df[col_global] = key_df[col_global].astype(int)
+    key_df[col_cat] = key_df[col_cat].astype(str).str.strip()
+
+    ws = open_by_key(key["sheet_id"]).worksheet(key["tabs"]["main"])
+    clear_range(key["sheet_id"], key["tabs"]["main"], key["clear_range"])
+    ws.update(key["start_cell"], key_df.values.tolist())
+
+# =================== Buat Cleaning Data Tracker dan Sanggahan ========================== #
 def run():
     _, _, bulan = get_last_month_range()
     print(f"=== DAY 1 - Persiapan data bulan {bulan} ===")
