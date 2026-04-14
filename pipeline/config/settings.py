@@ -50,25 +50,31 @@ GSHEET = {
         }
     },
 
-    # # Gsheet PNS — sumber list shipper (JANGAN diedit, read only)
-    # "pns": {
-    #     "url": "https://docs.google.com/spreadsheets/d/PNS_ID",
-    #     "sheet_id": "PNS_ID",
-    #     "tabs": {
-    #         "b2b": "B2B",   # sesuaikan nama tab
-    #         "fs":  "FS BD", # sesuaikan nama tab
-    #     },
-    #     # Kolom yang diambil dari PNS (sesuaikan)
-    #     "columns_to_copy": ["shipper_id", "shipper_name", "parent_id", "category"]
-    # },
+ # Gsheet PNS - sumber list shipper (JANGAN diedit, read only)
+    "pns": {
+        "url": "https://docs.google.com/spreadsheets/d/15ndhmW4gtQ14uMwMOl33IZ1iS67qQTFEaFhWr-UF7Ns/edit?gid=218596977#gid=218596977",
+        "sheet_id": "15ndhmW4gtQ14uMwMOl33IZ1iS67qQTFEaFhWr-UF7Ns",
+        "tabs": {
+            "compile": "USE THIS (COMPILE LIST KEY SHIPPERS)",
+        },
+        # Kolom yang diambil dari PNS (sesuaikan)
+        "columns": {
+            "global_id": "Global ID",
+            "category": "Shipper Service Category",
+        },
+    },
 
-    # Gsheet Key Shipper — milik kamu sendiri, copy dari PNS
+    # Gsheet Key Shipper ??? milik kamu sendiri, copy dari PNS
     "key_shipper": {
         "url": "https://docs.google.com/spreadsheets/d/1Gk_pMm40hHs1jXGTtApLMWXD00HiiRchI2MO-q1HUPQ/edit?gid=1784764051#gid=1784764051",
         "sheet_id": "1Gk_pMm40hHs1jXGTtApLMWXD00HiiRchI2MO-q1HUPQ",
         "tabs": {
             "main": "check",
-        }
+        },
+        # Range yang di-clear sebelum update Key Shipper
+        "clear_range": "A2:B",
+        # Start cell untuk tulis data
+        "start_cell": "A2",
     },
 
     # Gsheet DWS dari tim Sort
