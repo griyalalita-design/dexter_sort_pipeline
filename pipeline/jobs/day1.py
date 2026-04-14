@@ -118,7 +118,8 @@ def run():
             clear_range(sanggahan_id, tab_name, rng)
 
     # STEP 3: Skip PNS copy (source sudah dari Key Shipper)
-    print("\n[3/3] Skip copy PNS -> Key Shipper (source sudah dari Key Shipper).")
+    print("\n[3/3] Update Key Shipper dari PNS...")
+    _update_key_shipper_from_pns()
 
     print("\nDay 1 selesai! Tracker & sanggahan sudah bersih.")
 
