@@ -7,7 +7,6 @@ from config.settings import GSHEET
 from utils.gsheet import clear_range
 from utils.transform import get_last_month_range
 
-
 def _iter_ranges(value):
     if isinstance(value, dict):
         return list(value.values())
