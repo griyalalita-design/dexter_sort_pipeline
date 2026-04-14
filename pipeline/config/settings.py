@@ -27,8 +27,8 @@ GSHEET = {
     
     # Gsheet sanggahan
     "sanggahan": {
-        "url": "https://docs.google.com/spreadsheets/d/1BnHzPmB6V3WCgzPBvADczTDpcHD1Htds3VPLoxKVb-k/edit?gid=1021555673#gid=1021555673",
-        "sheet_id": "1BnHzPmB6V3WCgzPBvADczTDpcHD1Htds3VPLoxKVb-k",
+        "url": "https://docs.google.com/spreadsheets/d/1q1CkYFiZQKRvfYDjZGOJmqNOndbH3hd7Du_Pq0Wn7AU/edit?gid=1000001726#gid=1000001726",
+        "sheet_id": "1q1CkYFiZQKRvfYDjZGOJmqNOndbH3hd7Du_Pq0Wn7AU",
         "tabs": {
             "poa_iv_b2b_all_b2c_cold": "POA IV B2B All & B2C Cold",
             "poa_iv_keyshipper": "POA IV Keyshipper" ,
