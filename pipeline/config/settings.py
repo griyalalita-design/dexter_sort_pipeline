@@ -24,7 +24,7 @@ GSHEET = {
             "raw_data_cost": ["B3:K"]
         },
     },
-
+    
     # Gsheet sanggahan
     "sanggahan": {
         "url": "https://docs.google.com/spreadsheets/d/1BnHzPmB6V3WCgzPBvADczTDpcHD1Htds3VPLoxKVb-k/edit?gid=1021555673#gid=1021555673",
