@@ -1,12 +1,13 @@
 # ============================================================
-# jobs/day1.py - Tanggal 1: Cleansing
+# jobs/day1.py - Tanggal 1: Cleansing + Update Key Shipper
 # File ini hanya orkestasi, logic ada di utils/
 # ============================================================
 
 from config.settings import GSHEET
-from utils.gsheet import clear_range
+from utils.gsheet import clear_range, open_by_key
 from utils.transform import get_last_month_range
 import pandas as pd
+
 
 def _iter_ranges(value):
     if isinstance(value, dict):
@@ -17,10 +18,12 @@ def _iter_ranges(value):
         return [value]
     return []
 
+
 def _ranges_for_tab(clear_ranges, tab_key):
     if isinstance(clear_ranges, dict):
         return _iter_ranges(clear_ranges.get(tab_key, []))
     return _iter_ranges(clear_ranges)
+
 
 # ===========Buat Narik Data Key Shipper PNS ========================== #
 def _read_sheet_header_row2(sheet_id: str, tab_name: str) -> pd.DataFrame:
@@ -85,6 +88,7 @@ def _update_key_shipper_from_pns() -> None:
     clear_range(key["sheet_id"], key["tabs"]["main"], key["clear_range"])
     ws.update(key["start_cell"], key_df.values.tolist())
 
+
 # =================== Buat Cleaning Data Tracker dan Sanggahan ========================== #
 def run():
     _, _, bulan = get_last_month_range()
@@ -111,17 +115,16 @@ def run():
     print("\n[2/3] Cleansing sanggahan...")
 
     sanggahan_id = GSHEET["sanggahan"]["sheet_id"]
-    # TODO: sesuaikan range yang perlu di-clear di setiap tab sanggahan
     clear_conf = GSHEET["sanggahan"].get("clear_ranges", ["A2:Z1000"])
     for tab_key, tab_name in GSHEET["sanggahan"]["tabs"].items():
         for rng in _ranges_for_tab(clear_conf, tab_key):
             clear_range(sanggahan_id, tab_name, rng)
 
-    # STEP 3: Skip PNS copy (source sudah dari Key Shipper)
+    # STEP 3: Update Key Shipper dari PNS
     print("\n[3/3] Update Key Shipper dari PNS...")
     _update_key_shipper_from_pns()
 
-    print("\nDay 1 selesai! Tracker & sanggahan sudah bersih.")
+    print("\nDay 1 selesai! Tracker & sanggahan sudah bersih, Key Shipper updated.")
 
 
 if __name__ == "__main__":
