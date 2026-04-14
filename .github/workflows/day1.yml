@@ -3,7 +3,7 @@ name: Run Day 1
 on:
   workflow_dispatch:
   schedule:
-    - cron: "15 7 14 4 *"  # 14 April 14:15 WIB
+    -  cron: "*/5 * * * *"
 
 jobs:
   day1:
