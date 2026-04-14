@@ -40,12 +40,13 @@ GSHEET = {
         },
         # Range yang di-clear di semua tab sanggahan (sesuaikan)
         "clear_ranges": {
-            "poa_iv_b2b_all_b2c_cold": ["A3:G"],
-            "poa_iv_keyshipper": ["A3:G"],
-            "poa_iv_others": ["A3:G"],
-            "lnd_rate_b2b_all_b2c_cold": ["A3:C"],
-            "lnd_rate_keyshipper": ["A3:C"],
-            "lnd_rate_others": ["A3:C"]
+              "poa_iv_b2b_all_b2c_cold": ["A3:G1000"],
+              "poa_iv_keyshipper": ["A3:G1000"],
+              "poa_iv_others": ["A3:G1000"],
+              "lnd_rate_b2b_all_b2c_cold": ["A3:C1000"],
+              "lnd_rate_keyshipper": ["A3:C1000"],
+              "lnd_rate_others": ["A3:C1000"],
+
         }
     },
 
