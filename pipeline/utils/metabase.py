@@ -23,7 +23,17 @@ def get_token() -> str:
         raise ValueError("Token Metabase kosong! Update dulu di config sheet.")
     return token
 
-
+def tarik_metabase(url, parameters, token, desc):
+    headers = {"Content-Type":"application/x-www-form-urlencoded","X-Metabase-Session":token}
+    payload = "parameters=" + quote(json.dumps(parameters))
+    print("Pulling", desc)
+    r = requests.post(url, headers=headers, data=payload)
+    if r.status_code != 200:
+        print(f"[{desc}] FAILED:", r.status_code, r.text[:300])
+        return pd.DataFrame()
+    data = r.json()
+    return pd.DataFrame(data) if data else pd.DataFrame()
+    
 def query_metabase(query_id: int, parameters: list = None) -> pd.DataFrame:
     """
     Tarik data dari Metabase via API.
