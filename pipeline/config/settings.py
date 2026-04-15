@@ -16,7 +16,9 @@ GSHEET = {
         "sheet_id": "10jwwERVKLvdrk7tkmqVXeZHGp3Q1lV_2IjFsc6fXQhQ",  # ambil dari URL
         "tabs": {
             "raw_data_all":  "Raw Data [All]",
-            "raw_data_cost": "Raw Data [Cost]"
+            "raw_data_cost": "Raw Data [Cost]",
+            "recipients": "Recipients",
+            "master_tracker": "Master Tracker by Hub",
         },
         # Range yang di-clear saat Day 1 (sesuaikan)
         "clear_ranges": {
@@ -64,7 +66,7 @@ GSHEET = {
         },
     },
 
-    # Gsheet Key Shipper ??? milik kamu sendiri, copy dari PNS
+    # Gsheet Key Shipper milik BI , copy dari PNS
     "key_shipper": {
         "url": "https://docs.google.com/spreadsheets/d/1Gk_pMm40hHs1jXGTtApLMWXD00HiiRchI2MO-q1HUPQ/edit?gid=1784764051#gid=1784764051",
         "sheet_id": "1Gk_pMm40hHs1jXGTtApLMWXD00HiiRchI2MO-q1HUPQ",
@@ -88,28 +90,37 @@ GSHEET = {
 
     # Gsheet CPP dari tim PSP
     "cpp": {
-        "url": "https://docs.google.com/spreadsheets/d/CPP_ID",
-        "sheet_id": "CPP_ID",
+        "url": "https://docs.google.com/spreadsheets/d/155VQIcpKGH9Lbd3XUOWbzCxXUTFj8l8tMnU6t1NXitw/edit?gid=0#gid=0",
+        "sheet_id": "155VQIcpKGH9Lbd3XUOWbzCxXUTFj8l8tMnU6t1NXitw",
         "tabs": {
-            "main": "CPP", # sesuaikan nama tab
+            "main": "USE THIS", # sesuaikan nama tab
         }
+    },
+
+    # Gsheet staff list dari SORT
+    "staff_list": {
+        "url": "https://docs.google.com/spreadsheets/d/1s4BQ2TJYxxY-BttqgHvB185ONZlQ36pc0Bkz5NooSTU/edit?gid=664145533#gid=664145533",
+        "sheet_id": "1s4BQ2TJYxxY-BttqgHvB185ONZlQ36pc0Bkz5NooSTU",
+        "tabs": {
+            "main": "USE THIS",
+        },
     },
 
     # Gsheet Converter (data ke rupiah)
     "converter": {
-        "url": "https://docs.google.com/spreadsheets/d/CONVERTER_ID",
-        "sheet_id": "CONVERTER_ID",
+        "url": "https://docs.google.com/spreadsheets/d/1Sn2HisZcT81duWuWtKpVx_E_8192XeFIwtXrrDoSpGQ/edit?gid=0#gid=0",
+        "sheet_id": "1Sn2HisZcT81duWuWtKpVx_E_8192XeFIwtXrrDoSpGQ",
         "tabs": {
-            "performance": "Tab A",      # sesuaikan nama tab
-            "recipient":   "Recipient",  # sesuaikan nama tab
+            "performance": "Master Tracker by Hub",      # sesuaikan nama tab
+            "recipient":   "Staff List",  # sesuaikan nama tab
         }
     },
 
     # Gsheet config — tempat kamu simpen Metabase token
     "config": {
-        "sheet_id": "CONFIG_ID",
+        "sheet_id": "1RJK6GFPVrourpdF91GQ1DWuxBBn2a9_SndoyraXckZ4",
         "tabs": {
-            "main": "A",  # nama tab tempat token disimpen
+            "main": "App Password & API Keys",  # nama tab tempat token disimpen
         },
         "token_cell": "B2",  # cell tempat token Metabase
     },
