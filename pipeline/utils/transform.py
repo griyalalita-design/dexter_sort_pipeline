@@ -79,7 +79,6 @@ def categorize_shippers(df_pns: pd.DataFrame):
         "lazada_shopee": lazada_shopee,
     }
 
-
 def transform_poa(df_raw: pd.DataFrame) -> pd.DataFrame:
     """
     Transformasi data POA-IV.
