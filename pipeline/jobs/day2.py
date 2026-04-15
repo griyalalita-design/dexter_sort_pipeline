@@ -6,7 +6,7 @@
 import pandas as pd
 from config.settings import GSHEET
 from utils.gsheet import read_sheet, write_sheet, append_sheet
-from utils.metabase import pull_poa_iv, pull_lnd
+from utils.metabase import tarik_metabase
 from utils.transform import get_last_month_range, categorize_shippers, transform_poa, transform_lnd, merge_with_staff
 from utils.email import notify_day2
 
