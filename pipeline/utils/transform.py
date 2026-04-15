@@ -27,21 +27,51 @@ def get_last_month_range():
 
 def categorize_shippers(df_pns: pd.DataFrame):
     """
-    Bagi shipper dari PNS ke 3 kategori.
+    Bagi shipper dari Key Shipper ke kategori Day 2.
 
     Returns:
         dict dengan keys: "b2b_cc", "key_shipper", "lazada_shopee"
-        masing-masing berisi list shipper_id
+        masing-masing berisi list Global ID (int).
     """
-    # TODO: sesuaikan kondisi filter dengan kolom yang ada di PNS
-    # Ini contoh, sesuaikan sama kolom category di data PNS kamu
-    b2b_cc = df_pns[df_pns["category"].isin(["B2B", "Cold Chain"])]["shipper_id"].astype(str).tolist()
-    key_shipper = df_pns[df_pns["category"] == "Key Shipper"]["shipper_id"].astype(str).tolist()
-    lazada_shopee = df_pns[df_pns["category"].isin(["Lazada", "Shopee"])]["parent_id"].astype(str).tolist()
+    required_cols = ["Global ID", "Shipper Service Category"]
+    missing_cols = [c for c in required_cols if c not in df_pns.columns]
+    if missing_cols:
+        raise ValueError(
+            f"Kolom wajib tidak ditemukan di key shipper sheet: {missing_cols}. "
+            "Pastikan header: 'Global ID' dan 'Shipper Service Category'."
+        )
+
+    df = df_pns.copy()
+    df["Shipper Service Category"] = df["Shipper Service Category"].astype(str).str.strip()
+    df["Global ID"] = pd.to_numeric(df["Global ID"], errors="coerce")
+    df = df[df["Global ID"].notna()]
+    df["Global ID"] = df["Global ID"].astype(int)
+
+    b2b_cc_categories = ["B2BR", "B2BR Sameday", "LTL Reguler"]
+    key_shipper_category = "FS / BD Key Shipper"
+
+    b2b_cc = (
+        df[df["Shipper Service Category"].isin(b2b_cc_categories)]["Global ID"]
+        .dropna()
+        .astype(int)
+        .drop_duplicates()
+        .tolist()
+    )
+
+    key_shipper = (
+        df[df["Shipper Service Category"] == key_shipper_category]["Global ID"]
+        .dropna()
+        .astype(int)
+        .drop_duplicates()
+        .tolist()
+    )
+
+    # Lazada/Shopee tidak diambil dari key shipper (akan diisi filter terpisah).
+    lazada_shopee = []
 
     print(f"Shipper B2B+CC: {len(b2b_cc)}")
     print(f"Key Shipper: {len(key_shipper)}")
-    print(f"Lazada+Shopee: {len(lazada_shopee)}")
+    print("Lazada+Shopee: 0 (diisi filter terpisah)")
 
     return {
         "b2b_cc": b2b_cc,
