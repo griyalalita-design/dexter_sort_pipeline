@@ -14,15 +14,15 @@ def get_last_month_range():
     Contoh: kalau sekarang April 2026, return (2026-03-01, 2026-03-31, 'Maret')
     """
     today = date.today()
-    first_day = (today.replace(day=1) - relativedelta(months=1))
-    last_day = today.replace(day=1) - relativedelta(days=1)
+    start_day = (today.replace(day=1) - relativedelta(months=1))
+    end_day = today.replace(day=1) - relativedelta(days=1)
     bulan_names = {
         1: "Januari", 2: "Februari", 3: "Maret", 4: "April",
         5: "Mei", 6: "Juni", 7: "Juli", 8: "Agustus",
         9: "September", 10: "Oktober", 11: "November", 12: "Desember"
     }
     bulan_name = bulan_names[first_day.month]
-    return first_day, last_day, bulan_name
+    return start_day, end_day, bulan_name
 
 
 def categorize_shippers(df_pns: pd.DataFrame):
