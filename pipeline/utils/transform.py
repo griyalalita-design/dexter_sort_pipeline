@@ -73,7 +73,6 @@ def categorize_shippers(df_pns: pd.DataFrame):
     return {
         "b2b_cc": b2b_cc,
         "key_shipper": key_shipper,
-        "lazada_shopee": lazada_shopee,
     }
 
 def transform_poa(df_raw: pd.DataFrame) -> pd.DataFrame:
