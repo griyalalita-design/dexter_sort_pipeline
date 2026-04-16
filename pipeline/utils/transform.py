@@ -66,12 +66,9 @@ def categorize_shippers(df_pns: pd.DataFrame):
         .tolist()
     )
 
-    # Lazada/Shopee tidak diambil dari key shipper (akan diisi filter terpisah).
-    lazada_shopee = []
 
     print(f"Shipper B2B+CC: {len(b2b_cc)}")
     print(f"Key Shipper: {len(key_shipper)}")
-    print("Lazada+Shopee: 0 (diisi filter terpisah)")
 
     return {
         "b2b_cc": b2b_cc,
