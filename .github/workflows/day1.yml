@@ -3,7 +3,7 @@ name: Run Day 1
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 18 * * *" # 01:00 WIB (UTC+7)
+    - cron: "0 18 1 * *" # 01:00 WIB (UTC+7)
 
 jobs:
   day1:
