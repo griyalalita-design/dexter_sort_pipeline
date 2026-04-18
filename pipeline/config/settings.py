@@ -128,34 +128,32 @@ GSHEET = {
 
 # ── Metabase ─────────────────────────────────────────────────
 METABASE = {
-    "base_url": "https://metabase.your-company.com",  # ganti dengan URL Metabase kamu
-
-    # Query IDs per jenis data
-    # Bisa dicek dari URL Metabase waktu buka query: /question/XXX
-    "queries": {
-        "poa_iv":  {"id": 1234, "name": "POA-IV"},   # TODO: isi ID asli
-        "lnd":     {"id": 5678, "name": "LnD"},       # TODO: isi ID asli
-    },
-
-    # Filter parameter per kategori shipper
-    # Ini yang nanti diisi waktu hit API Metabase
-    "shipper_filters": {
-        "b2b_cc": {
-            "param_name": "shipper_id",   # nama parameter di Metabase query
-            "source": "pns_b2b_cc",       # ambil dari data PNS kategori ini
-        },
-        "key_shipper": {
-            "param_name_parent": "parent_coalesce_id",
-            "param_name_shipper": "shipper_id",
-            "source": "pns_key_shipper",
-        },
-        "lazada_shopee": {
-            "param_name_parent": "parent_coalesce_id",
-            "source": "pns_lazada_shopee",
+    "base_url": "https://metabase.ninjavan.co",
+    "key_shipper_parent_ids": [],
+    "others_parent_ids": [],
+    "reports": {
+        "poa_1": {
+            "url": "https://metabase.ninjavan.co/api/card/122270/query/json",
+            "report_type": "poa",
+            "common_params": [
+                {"id": "", "type": "date/single", "value": "$start_date", "target": "start_date"},
+                {"id": "", "type": "date/single", "value": "$end_date", "target": "end_date"},
+            ],
+            "shipper_params": {
+                "b2b_cc": [
+                    {"id": "", "type": "string/=", "value": "$b2b_cc_shipper_ids", "target": "shipper_id"},
+                ],
+                "key_shipper": [
+                    {"id": "", "type": "string/=", "value": "$key_shipper_ids", "target": "shipper_id"},
+                    {"id": "", "type": "string/=", "value": "$key_shipper_parent_ids", "target": "parent_id_coalesce"},
+                ],
+                "others": [
+                    {"id": "", "type": "string/=", "value": "$others_parent_ids", "target": "parent_id_coalesce"},
+                ],
+            },
         },
     },
 }
-
 # ── Email ─────────────────────────────────────────────────────
 EMAIL = {
     "sender": "your_email@company.com",       # TODO: ganti
