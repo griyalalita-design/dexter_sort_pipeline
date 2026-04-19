@@ -127,6 +127,7 @@ GSHEET = {
 }
 
 # ── Metabase ─────────────────────────────────────────────────
+# ── Metabase ─────────────────────────────────────────────────
 METABASE_CONFIG = {
     "poa": {
         "poa_iv_1": {
@@ -194,12 +195,228 @@ METABASE_CONFIG = {
                     {
                         "id": "f9ba1af7-0782-4239-9b17-fa26bfb9150a",
                         "type": "string/=",
-                        "value": ["216977","341107"],
+                        "value": ["216977", "341107"],
                         "target": ["dimension", ["template-tag", "parent_id_coalesce"]],
                     }
                 ],
             },
-        }
+        },
+
+        "poa_iv_2": {
+            "url": "PASTE_URL_POA_IV_2",
+            "report_type": "poa",
+            "common_params_template": [
+                {
+                    "id": "PASTE_ID_START_DATE_IV2",
+                    "type": "date/single",
+                    "value_key": "start_date",
+                    "target": ["variable", ["template-tag", "start_date"]],
+                },
+                {
+                    "id": "PASTE_ID_END_DATE_IV2",
+                    "type": "date/single",
+                    "value_key": "end_date",
+                    "target": ["variable", ["template-tag", "end_date"]],
+                },
+                {
+                    "id": "PASTE_ID_AGGR_IV2",
+                    "type": "category",
+                    "value": ["month"],
+                    "target": ["variable", ["template-tag", "aggr"]],
+                },
+                {
+                    "id": "PASTE_ID_ORIGIN_HUB_IV2",
+                    "type": "string/=",
+                    "value": [
+                        "BDO-BDO", "CBN-CBN", "KNO-KNO", "PDG-PDG", "PKU-PKU",
+                        "PLM-PLM", "SOC-SOC", "SRG-SRG", "SUB-SUB", "TKG-TKG", "MAC-MAC"
+                    ],
+                    "target": ["dimension", ["template-tag", "crossdock_orig_hub"]],
+                },
+                {
+                    "id": "PASTE_ID_PARAMETER_IV2",
+                    "type": "number/=",
+                    "value": ["120"],
+                    "target": ["variable", ["template-tag", "Parameter"]],
+                },
+            ],
+            "shipper_params_template": {
+                "b2b_cc": [
+                    {
+                        "id": "PASTE_ID_SHIPPER_B2B_CC_IV2",
+                        "type": "string/=",
+                        "value_key": "b2b_cc",
+                        "target": ["dimension", ["template-tag", "shipper_id"]],
+                    }
+                ],
+                "fsbd": [
+                    {
+                        "id": "PASTE_ID_PARENT_FSBD_IV2",
+                        "type": "string/=",
+                        "value": ["7474545"],
+                        "target": ["dimension", ["template-tag", "parent_id_coalesce"]],
+                    },
+                    {
+                        "id": "PASTE_ID_SHIPPER_FSBD_IV2",
+                        "type": "string/=",
+                        "value_key": "fsbd",
+                        "target": ["dimension", ["template-tag", "shipper_id"]],
+                    }
+                ],
+                "others": [
+                    {
+                        "id": "PASTE_ID_PARENT_OTHERS_IV2",
+                        "type": "string/=",
+                        "value": ["216977", "341107"],
+                        "target": ["dimension", ["template-tag", "parent_id_coalesce"]],
+                    }
+                ],
+            },
+        },
+
+        "poa_iv_3": {
+            "url": "PASTE_URL_POA_IV_3",
+            "report_type": "poa",
+            "common_params_template": [
+                {
+                    "id": "PASTE_ID_START_DATE_IV3",
+                    "type": "date/single",
+                    "value_key": "start_date",
+                    "target": ["variable", ["template-tag", "start_date"]],
+                },
+                {
+                    "id": "PASTE_ID_END_DATE_IV3",
+                    "type": "date/single",
+                    "value_key": "end_date",
+                    "target": ["variable", ["template-tag", "end_date"]],
+                },
+                {
+                    "id": "PASTE_ID_AGGR_IV3",
+                    "type": "category",
+                    "value": ["month"],
+                    "target": ["variable", ["template-tag", "aggr"]],
+                },
+                {
+                    "id": "PASTE_ID_ORIGIN_HUB_IV3",
+                    "type": "string/=",
+                    "value": [
+                        "BDO-BDO", "CBN-CBN", "KNO-KNO", "PDG-PDG", "PKU-PKU",
+                        "PLM-PLM", "SOC-SOC", "SRG-SRG", "SUB-SUB", "TKG-TKG", "MAC-MAC"
+                    ],
+                    "target": ["dimension", ["template-tag", "crossdock_orig_hub"]],
+                },
+                {
+                    "id": "PASTE_ID_PARAMETER_IV3",
+                    "type": "number/=",
+                    "value": ["120"],
+                    "target": ["variable", ["template-tag", "Parameter"]],
+                },
+            ],
+            "shipper_params_template": {
+                "b2b_cc": [
+                    {
+                        "id": "PASTE_ID_SHIPPER_B2B_CC_IV3",
+                        "type": "string/=",
+                        "value_key": "b2b_cc",
+                        "target": ["dimension", ["template-tag", "shipper_id"]],
+                    }
+                ],
+                "fsbd": [
+                    {
+                        "id": "PASTE_ID_PARENT_FSBD_IV3",
+                        "type": "string/=",
+                        "value": ["7474545"],
+                        "target": ["dimension", ["template-tag", "parent_id_coalesce"]],
+                    },
+                    {
+                        "id": "PASTE_ID_SHIPPER_FSBD_IV3",
+                        "type": "string/=",
+                        "value_key": "fsbd",
+                        "target": ["dimension", ["template-tag", "shipper_id"]],
+                    }
+                ],
+                "others": [
+                    {
+                        "id": "PASTE_ID_PARENT_OTHERS_IV3",
+                        "type": "string/=",
+                        "value": ["216977", "341107"],
+                        "target": ["dimension", ["template-tag", "parent_id_coalesce"]],
+                    }
+                ],
+            },
+        },
+
+        "poa_iv_4": {
+            "url": "PASTE_URL_POA_IV_4",
+            "report_type": "poa",
+            "common_params_template": [
+                {
+                    "id": "PASTE_ID_START_DATE_IV4",
+                    "type": "date/single",
+                    "value_key": "start_date",
+                    "target": ["variable", ["template-tag", "start_date"]],
+                },
+                {
+                    "id": "PASTE_ID_END_DATE_IV4",
+                    "type": "date/single",
+                    "value_key": "end_date",
+                    "target": ["variable", ["template-tag", "end_date"]],
+                },
+                {
+                    "id": "PASTE_ID_AGGR_IV4",
+                    "type": "category",
+                    "value": ["month"],
+                    "target": ["variable", ["template-tag", "aggr"]],
+                },
+                {
+                    "id": "PASTE_ID_ORIGIN_HUB_IV4",
+                    "type": "string/=",
+                    "value": [
+                        "BDO-BDO", "CBN-CBN", "KNO-KNO", "PDG-PDG", "PKU-PKU",
+                        "PLM-PLM", "SOC-SOC", "SRG-SRG", "SUB-SUB", "TKG-TKG", "MAC-MAC"
+                    ],
+                    "target": ["dimension", ["template-tag", "crossdock_orig_hub"]],
+                },
+                {
+                    "id": "PASTE_ID_PARAMETER_IV4",
+                    "type": "number/=",
+                    "value": ["120"],
+                    "target": ["variable", ["template-tag", "Parameter"]],
+                },
+            ],
+            "shipper_params_template": {
+                "b2b_cc": [
+                    {
+                        "id": "PASTE_ID_SHIPPER_B2B_CC_IV4",
+                        "type": "string/=",
+                        "value_key": "b2b_cc",
+                        "target": ["dimension", ["template-tag", "shipper_id"]],
+                    }
+                ],
+                "fsbd": [
+                    {
+                        "id": "PASTE_ID_PARENT_FSBD_IV4",
+                        "type": "string/=",
+                        "value": ["7474545"],
+                        "target": ["dimension", ["template-tag", "parent_id_coalesce"]],
+                    },
+                    {
+                        "id": "PASTE_ID_SHIPPER_FSBD_IV4",
+                        "type": "string/=",
+                        "value_key": "fsbd",
+                        "target": ["dimension", ["template-tag", "shipper_id"]],
+                    }
+                ],
+                "others": [
+                    {
+                        "id": "PASTE_ID_PARENT_OTHERS_IV4",
+                        "type": "string/=",
+                        "value": ["216977", "341107"],
+                        "target": ["dimension", ["template-tag", "parent_id_coalesce"]],
+                    }
+                ],
+            },
+        },
     }
 }
 # ── Email ─────────────────────────────────────────────────────
