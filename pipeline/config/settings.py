@@ -127,32 +127,80 @@ GSHEET = {
 }
 
 # ── Metabase ─────────────────────────────────────────────────
-METABASE = {
-    "reports": {
+METABASE_CONFIG = {
+    "poa": {
         "poa_iv_1": {
             "url": "https://metabase.ninjavan.co/api/card/122270/query/json",
             "report_type": "poa",
-            "common_params": [
-                {"id": "e6c527e6-8587-41ef-ba1e-223fadbca52a", "type": "date/single", "value": start_period_str, "target":["variable", ["template-tag", "start_date"]]},
-                {"id": "e33b0e69-95c3-4fc3-9e08-2bce46b52ebe", "type": "date/single", "value": end_period_str, "target":["variable", ["template-tag", "end_date"]]},
-                {"id": "5cfead49-71f9-45f9-86b8-d52079f5c4dd", "type": "category", "value": ["month"], "target":["variable", ["template-tag", "aggr"]]},
-                {"id": "74ebbf84-d66c-49c6-9d30-c1f260297ed4", "type": "string/=", "value": ["BDO-BDO", "CBN-CBN", "KNO-KNO", "PDG-PDG", "PKU-PKU", "PLM-PLM", "SOC-SOC", "SRG-SRG", "SUB-SUB","TKG-TKG","MAC-MAC"], "target":["dimension", ["template-tag", "crossdock_orig_hub"]]},
-                {"id": "bbb8cd83-b7bd-4ce2-8d44-74c0f6e98704", "type": "number/=", "value": ["120"], "target":["variable", ["template-tag", "Parameter"]]},
+            "common_params_template": [
+                {
+                    "id": "e6c527e6-8587-41ef-ba1e-223fadbca52a",
+                    "type": "date/single",
+                    "value_key": "start_date",
+                    "target": ["variable", ["template-tag", "start_date"]],
+                },
+                {
+                    "id": "e33b0e69-95c3-4fc3-9e08-2bce46b52ebe",
+                    "type": "date/single",
+                    "value_key": "end_date",
+                    "target": ["variable", ["template-tag", "end_date"]],
+                },
+                {
+                    "id": "5cfead49-71f9-45f9-86b8-d52079f5c4dd",
+                    "type": "category",
+                    "value": ["month"],
+                    "target": ["variable", ["template-tag", "aggr"]],
+                },
+                {
+                    "id": "74ebbf84-d66c-49c6-9d30-c1f260297ed4",
+                    "type": "string/=",
+                    "value": [
+                        "BDO-BDO", "CBN-CBN", "KNO-KNO", "PDG-PDG", "PKU-PKU",
+                        "PLM-PLM", "SOC-SOC", "SRG-SRG", "SUB-SUB", "TKG-TKG", "MAC-MAC"
+                    ],
+                    "target": ["dimension", ["template-tag", "crossdock_orig_hub"]],
+                },
+                {
+                    "id": "bbb8cd83-b7bd-4ce2-8d44-74c0f6e98704",
+                    "type": "number/=",
+                    "value": ["120"],
+                    "target": ["variable", ["template-tag", "Parameter"]],
+                },
             ],
-            "shipper_params": {
+            "shipper_params_template": {
                 "b2b_cc": [
-                    {"id": "f00e3394-9239-4262-89cd-8e735f249c9a", "type": "string/=", "value": b2b_cc, "target": ["dimension", ["template-tag", "shipper_id"]]},
+                    {
+                        "id": "f00e3394-9239-4262-89cd-8e735f249c9a",
+                        "type": "string/=",
+                        "value_key": "b2b_cc",
+                        "target": ["dimension", ["template-tag", "shipper_id"]],
+                    }
                 ],
-                "key_shipper": [
-                    {"id": "f9ba1af7-0782-4239-9b17-fa26bfb9150a", "type": "string/=", "value":["7474567"] , "target": ["dimension", ["template-tag", "parent_id_coalesce"]]},
-                    {"id": "f00e3394-9239-4262-89cd-8e735f249c9a", "type": "string/=", "value": key_shipper, "target": ["dimension", ["template-tag", "shipper_id"]],
+                "fsbd": [
+                    {
+                        "id": "f9ba1af7-0782-4239-9b17-fa26bfb9150a",
+                        "type": "string/=",
+                        "value": ["7474545"],
+                        "target": ["dimension", ["template-tag", "parent_id_coalesce"]],
+                    },
+                    {
+                        "id": "f00e3394-9239-4262-89cd-8e735f249c9a",
+                        "type": "string/=",
+                        "value_key": "key_shipper",
+                        "target": ["dimension", ["template-tag", "shipper_id"]],
+                    }
                 ],
                 "others": [
-                    {"id": "f9ba1af7-0782-4239-9b17-fa26bfb9150a", "type": "string/=", "value":["7474567"] , "target": ["dimension", ["template-tag", "parent_id_coalesce"]]},
+                    {
+                        "id": "f9ba1af7-0782-4239-9b17-fa26bfb9150a",
+                        "type": "string/=",
+                        "value": ["216977","341107"],
+                        "target": ["dimension", ["template-tag", "parent_id_coalesce"]],
+                    }
                 ],
             },
-        },
-    },
+        }
+    }
 }
 # ── Email ─────────────────────────────────────────────────────
 EMAIL = {
