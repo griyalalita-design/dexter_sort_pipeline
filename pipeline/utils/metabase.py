@@ -36,21 +36,22 @@ def get_token() -> str:
 
 
 def tarik_metabase(url, parameters, token, desc):
-    """
-    Tarik data Metabase pakai format request yang sama seperti script lama.
-    """
     headers = {
         "Content-Type": "application/x-www-form-urlencoded",
-        "X-Metabase-Session": token,
+        "X-Metabase-Session": token
     }
     payload = "parameters=" + quote(json.dumps(parameters))
 
-    print("Pulling", desc)
-    response = requests.post(url, headers=headers, data=payload)
+    print(f"Pulling {desc} ...")
+    r = requests.post(url, headers=headers, data=payload)
 
-    if response.status_code != 200:
-        print(f"[{desc}] FAILED:", response.status_code, response.text[:300])
+    if r.status_code != 200:
+        print(f"[{desc}] FAILED: {r.status_code} | {r.text[:300]}")
         return pd.DataFrame()
 
-    data = response.json()
+    data = r.json()
     return pd.DataFrame(data) if data else pd.DataFrame()
+
+
+def build_params(common_params, extra_params):
+    return common_params + extra_params
