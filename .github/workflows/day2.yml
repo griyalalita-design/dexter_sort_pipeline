@@ -1,4 +1,4 @@
-name: Run Day2 Pipeline
+name: Run Day 2
 
 on:
   workflow_dispatch:   # bisa klik manual di GitHub
