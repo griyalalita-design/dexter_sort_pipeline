@@ -6,6 +6,7 @@ import pandas as pd
 from utils.metabase import tarik_metabase, get_token
 from utils.gsheet import read_sheet
 from config.settings import METABASE_CONFIG, GSHEET
+from utils.gsheet import get_cell_value
 # Kalau folder kamu huruf besar, ganti jadi:
 # from CONFIG.settings import METABASE_CONFIG, GSHEET
 
