@@ -186,7 +186,7 @@ METABASE_CONFIG = {
                     {
                         "id": "f00e3394-9239-4262-89cd-8e735f249c9a",
                         "type": "string/=",
-                        "value_key": "key_shipper",
+                        "value_key": "fsbd",
                         "target": ["dimension", ["template-tag", "shipper_id"]],
                     }
                 ],
