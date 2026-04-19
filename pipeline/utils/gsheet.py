@@ -83,6 +83,15 @@ def read_sheet(spreadsheet_id: str, sheet_name: str) -> pd.DataFrame:
     worksheet = wb.worksheet(sheet_name)
     data = worksheet.get_all_records()
     return pd.DataFrame(data)
+    
+def get_cell_value(sheet_id: str, tab_name: str, cell: str) -> str:
+    """
+    Read single cell value from a specific sheet tab.
+    """
+    wb = open_by_key(sheet_id)
+    worksheet = wb.worksheet(tab_name)
+    value = worksheet.acell(cell).value
+    return (value or "").strip().strip("'").strip('"')
 
 
 def write_sheet(
