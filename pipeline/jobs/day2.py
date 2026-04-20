@@ -4,21 +4,11 @@ from datetime import datetime, timedelta
 import pandas as pd
 
 from utils.metabase import tarik_metabase, get_token
-from utils.gsheet import read_sheet
+from utils.gsheet import read_sheet, get_cell_value
 from config.settings import METABASE_CONFIG, GSHEET
-from utils.gsheet import get_cell_value
-# Kalau folder kamu huruf besar, ganti jadi:
-# from CONFIG.settings import METABASE_CONFIG, GSHEET
 
 
 def get_previous_month_period():
-    """
-    Ambil tanggal awal dan akhir bulan sebelumnya.
-    Contoh:
-    jika hari ini April 2026 -> hasil:
-    start_date = 2026-03-01
-    end_date   = 2026-03-31
-    """
     today = datetime.today()
     first_day_this_month = today.replace(day=1)
     last_day_prev_month = first_day_this_month - timedelta(days=1)
@@ -30,10 +20,6 @@ def get_previous_month_period():
 
 
 def render_params(param_templates, runtime_values):
-    """
-    Ubah param template yang masih pakai value_key
-    jadi param final yang sudah berisi value.
-    """
     rendered = []
 
     for param in param_templates:
@@ -53,10 +39,7 @@ def render_params(param_templates, runtime_values):
 
 
 def build_shipper_lists():
-    """
-    Ambil b2b_cc_list dan fsbd_list dari sheet key_shipper tab main.
-    """
-    print("\n[1/4] Read Google Sheet key_shipper...")
+    print("\n[1/6] Read Google Sheet key_shipper...")
 
     df = read_sheet(
         GSHEET["key_shipper"]["sheet_id"],
@@ -107,11 +90,8 @@ def build_shipper_lists():
         .tolist()
     )
 
-    print(f"Total b2b_cc_list: {len(b2b_cc_list)}")
-    print(f"Sample b2b_cc_list: {b2b_cc_list[:10]}")
-
-    print(f"Total fsbd_list: {len(fsbd_list)}")
-    print(f"Sample fsbd_list: {fsbd_list[:10]}")
+    print(f"Total b2b_cc_list: {len(b2b_cc_list)} | sample: {b2b_cc_list[:5]}")
+    print(f"Total fsbd_list: {len(fsbd_list)} | sample: {fsbd_list[:5]}")
 
     if not b2b_cc_list:
         print("WARNING: b2b_cc_list kosong!")
@@ -121,11 +101,8 @@ def build_shipper_lists():
     return b2b_cc_list, fsbd_list
 
 
-def run_report(report_key, segment_key, runtime_values, token):
-    """
-    Jalankan 1 report Metabase.
-    """
-    cfg = METABASE_CONFIG["poa"][report_key]
+def run_report(report_group, report_key, segment_key, runtime_values, token):
+    cfg = METABASE_CONFIG[report_group][report_key]
 
     common_params = render_params(
         cfg["common_params_template"],
@@ -141,11 +118,8 @@ def run_report(report_key, segment_key, runtime_values, token):
     desc = f"{report_key}_{segment_key}"
 
     print(f"\n[RUN] {desc}")
-    print(f"URL: {cfg['url']}")
+    print(f"Group: {report_group}")
     print(f"Total params: {len(final_params)}")
-    print("Rendered params:")
-    for i, p in enumerate(final_params, start=1):
-        print(f"  Param {i}: {p}")
 
     df_result = tarik_metabase(
         url=cfg["url"],
@@ -165,17 +139,97 @@ def run_report(report_key, segment_key, runtime_values, token):
     return df_result
 
 
+# =========================
+# POA HELPERS
+# =========================
+def reduce_poa_columns(df):
+    if df.empty:
+        return pd.DataFrame(columns=["origin_hub", "remarks"])
+
+    required_cols = ["origin_hub", "remarks"]
+    missing_cols = [c for c in required_cols if c not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Kolom POA tidak ditemukan: {missing_cols}")
+
+    out = df[required_cols].copy()
+    out["origin_hub"] = out["origin_hub"].astype(str).str.strip()
+    out["remarks"] = out["remarks"].astype(str).str.strip().str.lower()
+
+    return out
+
+
+def compile_poa_segment(results, segment_key):
+    compiled = []
+
+    for report_key in ["poa_iv_1", "poa_iv_2", "poa_iv_3", "poa_iv_4"]:
+        result_key = f"{report_key}_{segment_key}"
+        df = results.get(result_key, pd.DataFrame())
+        compiled.append(reduce_poa_columns(df))
+
+    if not compiled:
+        return pd.DataFrame(columns=["origin_hub", "remarks"])
+
+    return pd.concat(compiled, ignore_index=True)
+
+
+def build_poa_pivot(df_compiled):
+    if df_compiled.empty:
+        return pd.DataFrame(columns=[
+            "origin_hub", "hit", "hit:offload", "miss", "miss:offload", "total_hit"
+        ])
+
+    pivot = (
+        df_compiled.assign(count=1)
+        .pivot_table(
+            index="origin_hub",
+            columns="remarks",
+            values="count",
+            aggfunc="sum",
+            fill_value=0
+        )
+        .reset_index()
+    )
+
+    expected_cols = ["hit", "hit:offload", "miss", "miss:offload"]
+    for col in expected_cols:
+        if col not in pivot.columns:
+            pivot[col] = 0
+
+    pivot["total_hit"] = pivot["hit"] + pivot["hit:offload"]
+
+    final_cols = ["origin_hub", "hit", "hit:offload", "miss", "miss:offload", "total_hit"]
+    return pivot[final_cols].sort_values("origin_hub").reset_index(drop=True)
+
+
+# =========================
+# LND HELPERS
+# =========================
+def reduce_lnd_columns(df):
+    if df.empty:
+        return pd.DataFrame(columns=["hub", "total_loss_damage", "total_volume"])
+
+    required_cols = ["hub", "total_loss_damage", "total_volume"]
+    missing_cols = [c for c in required_cols if c not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Kolom LND tidak ditemukan: {missing_cols}")
+
+    out = df[required_cols].copy()
+    out["hub"] = out["hub"].astype(str).str.strip()
+
+    return out
+
+
 def run():
     print("=== DAY 2 START ===")
 
     start_date, end_date = get_previous_month_period()
-    print(f"\n[0/4] Period: {start_date} to {end_date}")
+    print(f"\n[0/6] Period: {start_date} to {end_date}")
 
-    print("\n[2/4] Get Metabase token...")
+    print("\n[2/6] Get Metabase token...")
     token = get_token()
     print("Token loaded:", bool(token))
 
-    print("\n[3/4] Build shipper lists...")
+    print("\n[3/6] Build shipper lists...")
     b2b_cc_list, fsbd_list = build_shipper_lists()
 
     runtime_values = {
@@ -185,35 +239,85 @@ def run():
         "fsbd": fsbd_list,
     }
 
-    print("\n[4/4] Pull Metabase reports...")
-    results = {}
+    # =========================
+    # POA
+    # =========================
+    print("\n[4/6] Pull POA reports...")
+    poa_results = {}
 
-    results["poa_iv_1_b2b_cc"] = run_report(
-        report_key="poa_iv_1",
-        segment_key="b2b_cc",
-        runtime_values=runtime_values,
-        token=token,
-    )
+    poa_report_keys = ["poa_iv_1", "poa_iv_2", "poa_iv_3", "poa_iv_4"]
+    segment_keys = ["b2b_cc", "fsbd", "others"]
 
-    results["poa_iv_1_fsbd"] = run_report(
-        report_key="poa_iv_1",
-        segment_key="fsbd",
-        runtime_values=runtime_values,
-        token=token,
-    )
+    for report_key in poa_report_keys:
+        for segment_key in segment_keys:
+            result_name = f"{report_key}_{segment_key}"
+            poa_results[result_name] = run_report(
+                report_group="poa",
+                report_key=report_key,
+                segment_key=segment_key,
+                runtime_values=runtime_values,
+                token=token,
+            )
 
-    results["poa_iv_1_others"] = run_report(
-        report_key="poa_iv_1",
-        segment_key="others",
-        runtime_values=runtime_values,
-        token=token,
-    )
+    print("\n[5/6] Compile and pivot POA...")
+    compiled_poa_b2b_cc = compile_poa_segment(poa_results, "b2b_cc")
+    compiled_poa_fsbd = compile_poa_segment(poa_results, "fsbd")
+    compiled_poa_others = compile_poa_segment(poa_results, "others")
+
+    pivot_poa_b2b_cc = build_poa_pivot(compiled_poa_b2b_cc)
+    pivot_poa_fsbd = build_poa_pivot(compiled_poa_fsbd)
+    pivot_poa_others = build_poa_pivot(compiled_poa_others)
+
+    print("pivot_poa_b2b_cc shape:", pivot_poa_b2b_cc.shape)
+    print("pivot_poa_fsbd shape:", pivot_poa_fsbd.shape)
+    print("pivot_poa_others shape:", pivot_poa_others.shape)
+
+    # =========================
+    # LND
+    # =========================
+    print("\n[6/6] Pull LND reports...")
+    lnd_results = {}
+
+    for segment_key in segment_keys:
+        result_name = f"lnd_1_{segment_key}"
+        lnd_results[result_name] = run_report(
+            report_group="lnd",
+            report_key="lnd_1",
+            segment_key=segment_key,
+            runtime_values=runtime_values,
+            token=token,
+        )
+
+    lnd_b2b_cc = reduce_lnd_columns(lnd_results["lnd_1_b2b_cc"])
+    lnd_fsbd = reduce_lnd_columns(lnd_results["lnd_1_fsbd"])
+    lnd_others = reduce_lnd_columns(lnd_results["lnd_1_others"])
+
+    print("lnd_b2b_cc shape:", lnd_b2b_cc.shape)
+    print("lnd_fsbd shape:", lnd_fsbd.shape)
+    print("lnd_others shape:", lnd_others.shape)
 
     print("\n=== DAY 2 DONE ===")
-    for name, df in results.items():
-        print(f"{name}: {df.shape}")
 
-    return results
+    return {
+        # raw
+        "poa_results": poa_results,
+        "lnd_results": lnd_results,
+
+        # poa compiled
+        "compiled_poa_b2b_cc": compiled_poa_b2b_cc,
+        "compiled_poa_fsbd": compiled_poa_fsbd,
+        "compiled_poa_others": compiled_poa_others,
+
+        # poa final
+        "pivot_poa_b2b_cc": pivot_poa_b2b_cc,
+        "pivot_poa_fsbd": pivot_poa_fsbd,
+        "pivot_poa_others": pivot_poa_others,
+
+        # lnd final
+        "lnd_b2b_cc": lnd_b2b_cc,
+        "lnd_fsbd": lnd_fsbd,
+        "lnd_others": lnd_others,
+    }
 
 
 if __name__ == "__main__":
