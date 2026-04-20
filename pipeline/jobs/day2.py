@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 import pandas as pd
 
 from utils.metabase import tarik_metabase, get_token
-from utils.gsheet import read_sheet, get_cell_value
+from utils.gsheet import read_sheet, get_cell_value, write_sheet
 from config.settings import METABASE_CONFIG, GSHEET
 
 
@@ -262,6 +262,77 @@ def reduce_lnd_columns(df):
 
     return out
 
+def dump_to_tracker(
+    pivot_poa_b2b_cc: pd.DataFrame,
+    pivot_poa_fsbd: pd.DataFrame,
+    pivot_poa_others: pd.DataFrame,
+    lnd_b2b_cc: pd.DataFrame,
+    lnd_fsbd: pd.DataFrame,
+    lnd_others: pd.DataFrame,
+) -> None:
+    tracker_cfg = GSHEET["tracker"]
+    tracker_sheet_id = tracker_cfg["sheet_id"]
+    tracker_tab = tracker_cfg["tabs"]["raw_data_all"]
+
+    # clear semua range dulu
+    for r in tracker_cfg["clear_ranges"]["raw_data_all"]:
+        clear_range(
+            spreadsheet_id=tracker_sheet_id,
+            sheet_name=tracker_tab,
+            range_a1=r,
+        )
+
+    # dump tanpa header
+    write_sheet(
+        spreadsheet_id=tracker_sheet_id,
+        sheet_name=tracker_tab,
+        df=pivot_poa_b2b_cc,
+        start_cell="C4",
+        include_header=False,
+    )
+
+    write_sheet(
+        spreadsheet_id=tracker_sheet_id,
+        sheet_name=tracker_tab,
+        df=pivot_poa_fsbd,
+        start_cell="P4",
+        include_header=False,
+    )
+
+    write_sheet(
+        spreadsheet_id=tracker_sheet_id,
+        sheet_name=tracker_tab,
+        df=pivot_poa_others,
+        start_cell="AC4",
+        include_header=False,
+    )
+
+    write_sheet(
+        spreadsheet_id=tracker_sheet_id,
+        sheet_name=tracker_tab,
+        df=lnd_b2b_cc,
+        start_cell="AP4",
+        include_header=False,
+    )
+
+    write_sheet(
+        spreadsheet_id=tracker_sheet_id,
+        sheet_name=tracker_tab,
+        df=lnd_fsbd,
+        start_cell="AY4",
+        include_header=False,
+    )
+
+    write_sheet(
+        spreadsheet_id=tracker_sheet_id,
+        sheet_name=tracker_tab,
+        df=lnd_others,
+        start_cell="BH4",
+        include_header=False,
+    )
+
+    print("Tracker updated successfully.")
+
 
 def run():
     print("=== DAY 2 START ===")
@@ -339,6 +410,16 @@ def run():
     print("lnd_b2b_cc shape:", lnd_b2b_cc.shape)
     print("lnd_fsbd shape:", lnd_fsbd.shape)
     print("lnd_others shape:", lnd_others.shape)
+
+    print("\n[7/6] Dump to tracker...")
+    dump_to_tracker(
+        pivot_poa_b2b_cc=pivot_poa_b2b_cc,
+        pivot_poa_fsbd=pivot_poa_fsbd,
+        pivot_poa_others=pivot_poa_others,
+        lnd_b2b_cc=lnd_b2b_cc,
+        lnd_fsbd=lnd_fsbd,
+        lnd_others=lnd_others,
+    )
 
     print("\n=== DAY 2 DONE ===")
 
