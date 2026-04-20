@@ -57,12 +57,12 @@ GSHEET = {
         "url": "https://docs.google.com/spreadsheets/d/15ndhmW4gtQ14uMwMOl33IZ1iS67qQTFEaFhWr-UF7Ns/edit?gid=218596977#gid=218596977",
         "sheet_id": "15ndhmW4gtQ14uMwMOl33IZ1iS67qQTFEaFhWr-UF7Ns",
         "tabs": {
-            "compile": "USE THIS (COMPILE LIST KEY SHIPPERS)",
+            "compile": "For KPI",
         },
         # Kolom yang diambil dari PNS (sesuaikan)
         "columns": {
-            "global_id": "Global ID",
-            "category": "Shipper Service Category",
+            "global_id": "Shipper ID",
+            "category": "Type",
         },
     },
 
@@ -126,7 +126,6 @@ GSHEET = {
     },
 }
 
-# ── Metabase ─────────────────────────────────────────────────
 # ── Metabase ─────────────────────────────────────────────────
 METABASE_CONFIG = {
     "poa": {
@@ -195,7 +194,7 @@ METABASE_CONFIG = {
                     {
                         "id": "f9ba1af7-0782-4239-9b17-fa26bfb9150a",
                         "type": "string/=",
-                        "value": ["216977", "341107","341121"],
+                        "value": ["216977", "341107", "341121"],
                         "target": ["dimension", ["template-tag", "parent_id_coalesce"]],
                     }
                 ],
@@ -257,7 +256,7 @@ METABASE_CONFIG = {
                         "target": ["dimension", ["template-tag", "parent_id_coalesce"]],
                     },
                     {
-                        "id": "6a00c9bf-3e5b-4796-823b-fc5debd9eb5a2",
+                        "id": "6a00c9bf-3e5b-4796-823b-fc5debd9eb5a",
                         "type": "string/=",
                         "value_key": "fsbd",
                         "target": ["dimension", ["template-tag", "shipper_id"]],
@@ -267,7 +266,7 @@ METABASE_CONFIG = {
                     {
                         "id": "9668505e-c96a-4dc3-bd52-86cf2d2a9604",
                         "type": "string/=",
-                        "value": ["216977", "341107","341121"],
+                        "value": ["216977", "341107", "341121"],
                         "target": ["dimension", ["template-tag", "parent_id_coalesce"]],
                     }
                 ],
@@ -339,7 +338,7 @@ METABASE_CONFIG = {
                     {
                         "id": "67cb1932-3608-4869-951b-879c6373c09d",
                         "type": "string/=",
-                        "value": ["216977", "341107","341121"],
+                        "value": ["216977", "341107", "341121"],
                         "target": ["dimension", ["template-tag", "parent_id_coalesce"]],
                     }
                 ],
@@ -411,79 +410,81 @@ METABASE_CONFIG = {
                     {
                         "id": "4c3ec4a2-149a-4f43-932e-302f4397a275",
                         "type": "string/=",
-                        "value": ["216977", "341107","341121"],
+                        "value": ["216977", "341107", "341121"],
                         "target": ["dimension", ["template-tag", "parent_id_coalesce"]],
                     }
                 ],
             },
         },
+    },
+
     "lnd": {
-    "lnd_1": {
-        "url": "PASTE_URL_LND_HERE",
-        "report_type": "lnd",
-        "common_params_template": [
-            {
-                "id": "e6a1e9c8-8f83-9dfd-fecb-832d67512759",
-                "type": "date/single",
-                "value_key": "start_date",
-                "target": ["variable", ["template-tag", "start"]],
-            },
-            {
-                "id": "e017c9c6-0345-5b57-2d2c-a99a375ec2cb",
-                "type": "date/single",
-                "value_key": "end_date",
-                "target": ["variable", ["template-tag", "end"]],
-            },
-            {
-                "id": "d49289f0-e6be-cdae-aaba-c025c53fe61e",
-                "type": "category",
-                "value": ["month"],
-                "target": ["variable", ["template-tag", "aggr"]],
-            },
-            {
-                "id": "e0a847b5-0b07-844a-c98d-5e150bcee6b7",
-                "type": "string/=",
-                "value": [
+        "lnd_1": {
+            "url": "https://metabase.ninjavan.co/api/card/122268/query/json",
+            "report_type": "lnd",
+            "common_params_template": [
+                {
+                    "id": "e6a1e9c8-8f83-9dfd-fecb-832d67512759",
+                    "type": "date/single",
+                    "value_key": "start_date",
+                    "target": ["variable", ["template-tag", "start"]],
+                },
+                {
+                    "id": "e017c9c6-0345-5b57-2d2c-a99a375ec2cb",
+                    "type": "date/single",
+                    "value_key": "end_date",
+                    "target": ["variable", ["template-tag", "end"]],
+                },
+                {
+                    "id": "d49289f0-e6be-cdae-aaba-c025c53fe61e",
+                    "type": "category",
+                    "value": ["month"],
+                    "target": ["variable", ["template-tag", "aggr"]],
+                },
+                {
+                    "id": "e0a847b5-0b07-844a-c98d-5e150bcee6b7",
+                    "type": "string/=",
+                    "value": [
                         "BDO-BDO", "CBN-CBN", "KNO-KNO", "PDG-PDG", "PKU-PKU",
                         "PLM-PLM", "SOC-SOC", "SRG-SRG", "SUB-SUB", "TKG-TKG", "MAC-MAC"
                     ],
-                "target": ["dimension", ["template-tag", "hub_name"]],
-            },
-        ],
-        "shipper_params_template": {
-            "b2b_cc": [
-                {
-                    "id": "b43a47f7-fe04-417d-8bce-ef5f111b8fa7",
-                    "type": "string/=",
-                    "value_key": "b2b_cc",
-                    "target": ["dimension", ["template-tag", "shipper_id"]],
-                }
-            ],
-            "fsbd": [
-                {
-                    "id": "d98aa80a-0bb0-4838-af30-2b2128c6be86",
-                    "type": "string/=",
-                    "value": ["7474545"],
-                    "target": ["dimension", ["template-tag", "parent_id"]],
+                    "target": ["dimension", ["template-tag", "hub_name"]],
                 },
-                {
-                    "id": "b43a47f7-fe04-417d-8bce-ef5f111b8fa7",
-                    "type": "string/=",
-                    "value_key": "fsbd",
-                    "target": ["dimension", ["template-tag", "shipper_id"]],
-                }
             ],
-            "others": [
-                {
-                    "id": "d98aa80a-0bb0-4838-af30-2b2128c6be86",
-                    "type": "string/=",
-                    "value": ["216977", "341107"],
-                    "target": ["dimension", ["template-tag", "parent_id"]],
-                }
-            ],
-        },
+            "shipper_params_template": {
+                "b2b_cc": [
+                    {
+                        "id": "b43a47f7-fe04-417d-8bce-ef5f111b8fa7",
+                        "type": "string/=",
+                        "value_key": "b2b_cc",
+                        "target": ["dimension", ["template-tag", "shipper_id"]],
+                    }
+                ],
+                "fsbd": [
+                    {
+                        "id": "d98aa80a-0bb0-4838-af30-2b2128c6be86",
+                        "type": "string/=",
+                        "value": ["7474545"],
+                        "target": ["dimension", ["template-tag", "parent_id"]],
+                    },
+                    {
+                        "id": "b43a47f7-fe04-417d-8bce-ef5f111b8fa7",
+                        "type": "string/=",
+                        "value_key": "fsbd",
+                        "target": ["dimension", ["template-tag", "shipper_id"]],
+                    }
+                ],
+                "others": [
+                    {
+                        "id": "d98aa80a-0bb0-4838-af30-2b2128c6be86",
+                        "type": "string/=",
+                        "value": ["216977", "341107"],
+                        "target": ["dimension", ["template-tag", "parent_id"]],
+                    }
+                ],
+            },
+        }
     }
-}
 }
 # ── Email ─────────────────────────────────────────────────────
 EMAIL = {
