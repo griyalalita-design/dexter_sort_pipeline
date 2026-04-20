@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 import pandas as pd
 
 from utils.metabase import tarik_metabase, get_token
-from utils.gsheet import read_sheet, get_cell_value, write_sheet
+from utils.gsheet import read_sheet, get_cell_value, write_sheet, clear_range
 from config.settings import METABASE_CONFIG, GSHEET
 
 
