@@ -203,29 +203,29 @@ METABASE_CONFIG = {
         },
 
         "poa_iv_2": {
-            "url": "PASTE_URL_POA_IV_2",
+            "url": "https://metabase.ninjavan.co/api/card/122273/query/json",
             "report_type": "poa",
             "common_params_template": [
                 {
-                    "id": "PASTE_ID_START_DATE_IV2",
+                    "id": "e6c527e6-8587-41ef-ba1e-223fadbca52a",
                     "type": "date/single",
                     "value_key": "start_date",
                     "target": ["variable", ["template-tag", "start_date"]],
                 },
                 {
-                    "id": "PASTE_ID_END_DATE_IV2",
+                    "id": "e33b0e69-95c3-4fc3-9e08-2bce46b52ebe",
                     "type": "date/single",
                     "value_key": "end_date",
                     "target": ["variable", ["template-tag", "end_date"]],
                 },
                 {
-                    "id": "PASTE_ID_AGGR_IV2",
+                    "id": "2bbcd4b3-21ed-4c12-97ba-dcb26f4e9579",
                     "type": "category",
                     "value": ["month"],
                     "target": ["variable", ["template-tag", "aggr"]],
                 },
                 {
-                    "id": "PASTE_ID_ORIGIN_HUB_IV2",
+                    "id": "74ebbf84-d66c-49c6-9d30-c1f260297ed4",
                     "type": "string/=",
                     "value": [
                         "BDO-BDO", "CBN-CBN", "KNO-KNO", "PDG-PDG", "PKU-PKU",
@@ -234,7 +234,7 @@ METABASE_CONFIG = {
                     "target": ["dimension", ["template-tag", "crossdock_orig_hub"]],
                 },
                 {
-                    "id": "PASTE_ID_PARAMETER_IV2",
+                    "id": "bbb8cd83-b7bd-4ce2-8d44-74c0f6e98704",
                     "type": "number/=",
                     "value": ["120"],
                     "target": ["variable", ["template-tag", "Parameter"]],
@@ -243,7 +243,7 @@ METABASE_CONFIG = {
             "shipper_params_template": {
                 "b2b_cc": [
                     {
-                        "id": "PASTE_ID_SHIPPER_B2B_CC_IV2",
+                        "id": "6a00c9bf-3e5b-4796-823b-fc5debd9eb5a",
                         "type": "string/=",
                         "value_key": "b2b_cc",
                         "target": ["dimension", ["template-tag", "shipper_id"]],
@@ -251,13 +251,13 @@ METABASE_CONFIG = {
                 ],
                 "fsbd": [
                     {
-                        "id": "PASTE_ID_PARENT_FSBD_IV2",
+                        "id": "9668505e-c96a-4dc3-bd52-86cf2d2a9604",
                         "type": "string/=",
                         "value": ["7474545"],
                         "target": ["dimension", ["template-tag", "parent_id_coalesce"]],
                     },
                     {
-                        "id": "PASTE_ID_SHIPPER_FSBD_IV2",
+                        "id": "6a00c9bf-3e5b-4796-823b-fc5debd9eb5a2",
                         "type": "string/=",
                         "value_key": "fsbd",
                         "target": ["dimension", ["template-tag", "shipper_id"]],
@@ -265,7 +265,7 @@ METABASE_CONFIG = {
                 ],
                 "others": [
                     {
-                        "id": "PASTE_ID_PARENT_OTHERS_IV2",
+                        "id": "9668505e-c96a-4dc3-bd52-86cf2d2a9604",
                         "type": "string/=",
                         "value": ["216977", "341107"],
                         "target": ["dimension", ["template-tag", "parent_id_coalesce"]],
