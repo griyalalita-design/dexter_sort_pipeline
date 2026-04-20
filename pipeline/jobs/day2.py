@@ -144,15 +144,15 @@ def run_report(report_group, report_key, segment_key, runtime_values, token):
 # =========================
 def reduce_poa_columns(df):
     if df.empty:
-        return pd.DataFrame(columns=["origin_hub", "remarks"])
+        return pd.DataFrame(columns=["orig_hub_name", "remarks"])
 
-    required_cols = ["origin_hub", "remarks"]
+    required_cols = ["orig_hub_name", "remarks"]
     missing_cols = [c for c in required_cols if c not in df.columns]
     if missing_cols:
         raise ValueError(f"Kolom POA tidak ditemukan: {missing_cols}")
 
     out = df[required_cols].copy()
-    out["origin_hub"] = out["origin_hub"].astype(str).str.strip()
+    out["orig_hub_name"] = out["orig_hub_name"].astype(str).str.strip()
     out["remarks"] = out["remarks"].astype(str).str.strip().str.lower()
 
     return out
@@ -167,7 +167,7 @@ def compile_poa_segment(results, segment_key):
         compiled.append(reduce_poa_columns(df))
 
     if not compiled:
-        return pd.DataFrame(columns=["origin_hub", "remarks"])
+        return pd.DataFrame(columns=["orig_hub_name", "remarks"])
 
     return pd.concat(compiled, ignore_index=True)
 
@@ -175,7 +175,7 @@ def compile_poa_segment(results, segment_key):
 def build_poa_pivot(df_compiled):
     if df_compiled.empty:
         return pd.DataFrame(columns=[
-            "origin_hub_name",
+            "orig_hub_name",
             "hit",
             "hit: offload",
             "miss",
@@ -195,7 +195,7 @@ def build_poa_pivot(df_compiled):
     pivot = (
         df.assign(count=1)
         .pivot_table(
-            index="origin_hub_name",
+            index="orig_hub_name",
             columns="remarks",
             values="count",
             aggfunc="sum",
@@ -229,11 +229,11 @@ def build_poa_pivot(df_compiled):
 
     # rename
     pivot = pivot.rename(columns={
-        "origin_hub": "origin_hub_name"
+        "orig_hub_name": "orig_hub_name"
     })
 
     final_cols = [
-        "origin_hub_name",
+        "orig_hub_name",
         "hit",
         "hit: offload",
         "miss",
@@ -242,7 +242,7 @@ def build_poa_pivot(df_compiled):
         "total_hit"
     ]
 
-    return pivot[final_cols].sort_values("origin_hub_name").reset_index(drop=True)
+    return pivot[final_cols].sort_values("orig_hub_name").reset_index(drop=True)
 
 
 # =========================
