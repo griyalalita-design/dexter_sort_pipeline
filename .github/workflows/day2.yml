@@ -2,6 +2,8 @@ name: Run Day 2
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "0 8 2 * *" # 01:00 WIB (UTC+7)timezone: 
 
 jobs:
   day2:
