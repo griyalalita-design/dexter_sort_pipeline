@@ -195,7 +195,7 @@ METABASE_CONFIG = {
                     {
                         "id": "f9ba1af7-0782-4239-9b17-fa26bfb9150a",
                         "type": "string/=",
-                        "value": ["216977", "341107"],
+                        "value": ["216977", "341107","341121"],
                         "target": ["dimension", ["template-tag", "parent_id_coalesce"]],
                     }
                 ],
@@ -267,7 +267,7 @@ METABASE_CONFIG = {
                     {
                         "id": "9668505e-c96a-4dc3-bd52-86cf2d2a9604",
                         "type": "string/=",
-                        "value": ["216977", "341107"],
+                        "value": ["216977", "341107","341121"],
                         "target": ["dimension", ["template-tag", "parent_id_coalesce"]],
                     }
                 ],
@@ -339,7 +339,7 @@ METABASE_CONFIG = {
                     {
                         "id": "67cb1932-3608-4869-951b-879c6373c09d",
                         "type": "string/=",
-                        "value": ["216977", "341107"],
+                        "value": ["216977", "341107","341121"],
                         "target": ["dimension", ["template-tag", "parent_id_coalesce"]],
                     }
                 ],
@@ -411,7 +411,7 @@ METABASE_CONFIG = {
                     {
                         "id": "4c3ec4a2-149a-4f43-932e-302f4397a275",
                         "type": "string/=",
-                        "value": ["216977", "341107"],
+                        "value": ["216977", "341107","341121"],
                         "target": ["dimension", ["template-tag", "parent_id_coalesce"]],
                     }
                 ],
