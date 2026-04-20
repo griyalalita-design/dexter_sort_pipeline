@@ -417,7 +417,73 @@ METABASE_CONFIG = {
                 ],
             },
         },
+    "lnd": {
+    "lnd_1": {
+        "url": "PASTE_URL_LND_HERE",
+        "report_type": "lnd",
+        "common_params_template": [
+            {
+                "id": "e6a1e9c8-8f83-9dfd-fecb-832d67512759",
+                "type": "date/single",
+                "value_key": "start_date",
+                "target": ["variable", ["template-tag", "start"]],
+            },
+            {
+                "id": "e017c9c6-0345-5b57-2d2c-a99a375ec2cb",
+                "type": "date/single",
+                "value_key": "end_date",
+                "target": ["variable", ["template-tag", "end"]],
+            },
+            {
+                "id": "d49289f0-e6be-cdae-aaba-c025c53fe61e",
+                "type": "category",
+                "value": ["month"],
+                "target": ["variable", ["template-tag", "aggr"]],
+            },
+            {
+                "id": "e0a847b5-0b07-844a-c98d-5e150bcee6b7",
+                "type": "string/=",
+                "value": [
+                        "BDO-BDO", "CBN-CBN", "KNO-KNO", "PDG-PDG", "PKU-PKU",
+                        "PLM-PLM", "SOC-SOC", "SRG-SRG", "SUB-SUB", "TKG-TKG", "MAC-MAC"
+                    ],
+                "target": ["dimension", ["template-tag", "hub_name"]],
+            },
+        ],
+        "shipper_params_template": {
+            "b2b_cc": [
+                {
+                    "id": "b43a47f7-fe04-417d-8bce-ef5f111b8fa7",
+                    "type": "string/=",
+                    "value_key": "b2b_cc",
+                    "target": ["dimension", ["template-tag", "shipper_id"]],
+                }
+            ],
+            "fsbd": [
+                {
+                    "id": "d98aa80a-0bb0-4838-af30-2b2128c6be86",
+                    "type": "string/=",
+                    "value": ["7474545"],
+                    "target": ["dimension", ["template-tag", "parent_id"]],
+                },
+                {
+                    "id": "b43a47f7-fe04-417d-8bce-ef5f111b8fa7",
+                    "type": "string/=",
+                    "value_key": "fsbd",
+                    "target": ["dimension", ["template-tag", "shipper_id"]],
+                }
+            ],
+            "others": [
+                {
+                    "id": "d98aa80a-0bb0-4838-af30-2b2128c6be86",
+                    "type": "string/=",
+                    "value": ["216977", "341107"],
+                    "target": ["dimension", ["template-tag", "parent_id"]],
+                }
+            ],
+        },
     }
+}
 }
 # ── Email ─────────────────────────────────────────────────────
 EMAIL = {
