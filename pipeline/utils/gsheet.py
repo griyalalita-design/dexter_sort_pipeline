@@ -99,12 +99,21 @@ def write_sheet(
     sheet_name: str,
     df: pd.DataFrame,
     start_cell: str = "A1",
+    include_header: bool = True,
 ) -> None:
     """
-    Write a DataFrame to a specific sheet tab (overwrites from start_cell).
+    Write a DataFrame to a specific sheet tab.
     """
     wb = open_by_key(spreadsheet_id)
-    values = [df.columns.tolist()] + df.values.tolist() if not df.empty else [df.columns.tolist()]
+
+    if include_header:
+        values = [df.columns.tolist()] + df.values.tolist() if not df.empty else [df.columns.tolist()]
+    else:
+        values = df.values.tolist() if not df.empty else []
+
+    if not values:
+        return
+
     wb.values_update(
         _a1(sheet_name, start_cell),
         params={"valueInputOption": "USER_ENTERED"},
