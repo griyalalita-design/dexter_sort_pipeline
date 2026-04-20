@@ -175,13 +175,27 @@ def compile_poa_segment(results, segment_key):
 def build_poa_pivot(df_compiled):
     if df_compiled.empty:
         return pd.DataFrame(columns=[
-            "orig_hub_name", "hit", "hit: offload", "miss", "miss: potential hit", "total_hit"
+            "origin_hub_name",
+            "hit",
+            "hit: offload",
+            "miss",
+            "miss: potential hit",
+            "grand_total",
+            "total_hit"
         ])
 
+    df = df_compiled.copy()
+
+    # normalisasi remarks (penting banget)
+    df["remarks"] = df["remarks"].astype(str).str.strip().str.lower()
+
+    # 🚨 buang others
+    df = df[df["remarks"] != "others"]
+
     pivot = (
-        df_compiled.assign(count=1)
+        df.assign(count=1)
         .pivot_table(
-            index="orig_hub_name",
+            index="origin_hub_name",
             columns="remarks",
             values="count",
             aggfunc="sum",
@@ -190,15 +204,45 @@ def build_poa_pivot(df_compiled):
         .reset_index()
     )
 
-    expected_cols = ["hit", "hit: offload", "miss", "miss: potential hit"]
+    # expected kolom
+    expected_cols = [
+        "hit",
+        "hit: offload",
+        "miss",
+        "miss: potential hit"
+    ]
+
     for col in expected_cols:
         if col not in pivot.columns:
             pivot[col] = 0
 
+    # total_hit
     pivot["total_hit"] = pivot["hit"] + pivot["hit: offload"]
 
-    final_cols = ["orig_hub_nameb", "hit", "hit: offload", "miss", "miss: potential hit", "total_hit"]
-    return pivot[final_cols].sort_values("orig_hub_name").reset_index(drop=True)
+    # grand_total (exclude others)
+    pivot["grand_total"] = (
+        pivot["hit"]
+        + pivot["hit: offload"]
+        + pivot["miss"]
+        + pivot["miss: potential hit"]
+    )
+
+    # rename
+    pivot = pivot.rename(columns={
+        "origin_hub": "origin_hub_name"
+    })
+
+    final_cols = [
+        "origin_hub_name",
+        "hit",
+        "hit: offload",
+        "miss",
+        "miss: potential hit",
+        "grand_total",
+        "total_hit"
+    ]
+
+    return pivot[final_cols].sort_values("origin_hub_name").reset_index(drop=True)
 
 
 # =========================
