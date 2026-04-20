@@ -334,6 +334,70 @@ def dump_to_tracker(
     print("Tracker updated successfully.")
 
 
+def dump_to_sanggahan(
+    pivot_poa_b2b_cc: pd.DataFrame,
+    pivot_poa_fsbd: pd.DataFrame,
+    pivot_poa_others: pd.DataFrame,
+    lnd_b2b_cc: pd.DataFrame,
+    lnd_fsbd: pd.DataFrame,
+    lnd_others: pd.DataFrame,
+) -> None:
+    sanggahan_cfg = GSHEET["sanggahan"]
+    sanggahan_sheet_id = sanggahan_cfg["sheet_id"]
+    tabs = sanggahan_cfg["tabs"]
+
+    # dump tanpa header
+    write_sheet(
+        spreadsheet_id=sanggahan_sheet_id,
+        sheet_name=tabs["poa_iv_b2b_all_b2c_cold"],
+        df=pivot_poa_b2b_cc,
+        start_cell="A3",
+        include_header=False,
+    )
+
+    write_sheet(
+        spreadsheet_id=sanggahan_sheet_id,
+        sheet_name=tabs["poa_iv_keyshipper"],
+        df=pivot_poa_fsbd,
+        start_cell="A3",
+        include_header=False,
+    )
+
+    write_sheet(
+        spreadsheet_id=sanggahan_sheet_id,
+        sheet_name=tabs["poa_iv_others"],
+        df=pivot_poa_others,
+        start_cell="A3",
+        include_header=False,
+    )
+
+    write_sheet(
+        spreadsheet_id=sanggahan_sheet_id,
+        sheet_name=tabs["lnd_rate_b2b_all_b2c_cold"],
+        df=lnd_b2b_cc,
+        start_cell="A3",
+        include_header=False,
+    )
+
+    write_sheet(
+        spreadsheet_id=sanggahan_sheet_id,
+        sheet_name=tabs["lnd_rate_keyshipper"],
+        df=lnd_fsbd,
+        start_cell="A3",
+        include_header=False,
+    )
+
+    write_sheet(
+        spreadsheet_id=sanggahan_sheet_id,
+        sheet_name=tabs["lnd_rate_others"],
+        df=lnd_others,
+        start_cell="A3",
+        include_header=False,
+    )
+
+    print("Sanggahan updated successfully.")
+
+
 def run():
     print("=== DAY 2 START ===")
 
@@ -413,6 +477,16 @@ def run():
 
     print("\n[7/6] Dump to tracker...")
     dump_to_tracker(
+        pivot_poa_b2b_cc=pivot_poa_b2b_cc,
+        pivot_poa_fsbd=pivot_poa_fsbd,
+        pivot_poa_others=pivot_poa_others,
+        lnd_b2b_cc=lnd_b2b_cc,
+        lnd_fsbd=lnd_fsbd,
+        lnd_others=lnd_others,
+    )
+
+    print("\n[8/6] Dump to sanggahan...")
+    dump_to_sanggahan(
         pivot_poa_b2b_cc=pivot_poa_b2b_cc,
         pivot_poa_fsbd=pivot_poa_fsbd,
         pivot_poa_others=pivot_poa_others,
