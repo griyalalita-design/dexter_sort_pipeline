@@ -175,13 +175,13 @@ def compile_poa_segment(results, segment_key):
 def build_poa_pivot(df_compiled):
     if df_compiled.empty:
         return pd.DataFrame(columns=[
-            "origin_hub", "hit", "hit:offload", "miss", "miss:offload", "total_hit"
+            "orig_hub_name", "hit", "hit: offload", "miss", "miss: potential hit", "total_hit"
         ])
 
     pivot = (
         df_compiled.assign(count=1)
         .pivot_table(
-            index="origin_hub",
+            index="orig_hub_name",
             columns="remarks",
             values="count",
             aggfunc="sum",
@@ -190,15 +190,15 @@ def build_poa_pivot(df_compiled):
         .reset_index()
     )
 
-    expected_cols = ["hit", "hit:offload", "miss", "miss:offload"]
+    expected_cols = ["hit", "hit: offload", "miss", "miss: potential hit"]
     for col in expected_cols:
         if col not in pivot.columns:
             pivot[col] = 0
 
-    pivot["total_hit"] = pivot["hit"] + pivot["hit:offload"]
+    pivot["total_hit"] = pivot["hit"] + pivot["hit: offload"]
 
-    final_cols = ["origin_hub", "hit", "hit:offload", "miss", "miss:offload", "total_hit"]
-    return pivot[final_cols].sort_values("origin_hub").reset_index(drop=True)
+    final_cols = ["orig_hub_nameb", "hit", "hit: offload", "miss", "miss: potential hit", "total_hit"]
+    return pivot[final_cols].sort_values("orig_hub_name").reset_index(drop=True)
 
 
 # =========================
