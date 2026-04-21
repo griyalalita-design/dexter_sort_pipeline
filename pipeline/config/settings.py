@@ -84,7 +84,7 @@ GSHEET = {
         "url": "https://docs.google.com/spreadsheets/d/1wm7fyvG_AMlK8U2gCBKDr0_Hb_17fFKW21373vjf2xM/edit?gid=0#gid=0",
         "sheet_id": "1wm7fyvG_AMlK8U2gCBKDr0_Hb_17fFKW21373vjf2xM",
         "tabs": {
-            "main": "USE THIS", # sesuaikan nama tab
+            "main": "Pivot", # sesuaikan nama tab
         }
     },
 
