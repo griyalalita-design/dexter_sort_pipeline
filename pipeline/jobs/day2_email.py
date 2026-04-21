@@ -1,21 +1,26 @@
-import os
+from __future__ import annotations
+
 import re
 import smtplib
+import ssl
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from datetime import datetime, timedelta
 
-SENDER_ALIAS = "id-bi-reporting@ninjavan.co"
+from utils.gsheet import read_sheet, get_cell_value
+from config.settings import GSHEET
+
+
 SENDER_DISPLAY_NAME = "ID BI-Reporting"
+SENDER_ALIAS_EMAIL = "id-bi-reporting@ninjavan.co"
 
-SMTP_SERVER = "smtp.gmail.com"
-SMTP_PORT = 587
+SMTP_HOST = "smtp.gmail.com"
+SMTP_PORT = 465
 
+# hardcode links
 METABASE_URL = "https://docs.google.com/spreadsheets/d/10jwwERVKLvdrk7tkmqVXeZHGp3Q1lV_2IjFsc6fXQhQ/edit?gid=26110973#gid=26110973"
 SOSIALISASI_URL = "https://docs.google.com/presentation/d/1-X4ov1yvZ7IlCxhhoS72l3g9ItdY6UpFI480jsfLHg4/edit?slide=id.g1e6796d10b0_0_192#slide=id.g1e6796d10b0_0_192"
 TEMPLATE_URL = "https://docs.google.com/spreadsheets/d/10jwwERVKLvdrk7tkmqVXeZHGp3Q1lV_2IjFsc6fXQhQ/edit?gid=0#gid=0"
-
-def is_email(value: str) -> bool:
-    return bool(re.match(r"^[^\s@]+@[^\s@]+\.[^\s@]+$", str(value or "").strip()))
 
 
 def get_previous_month_label() -> str:
@@ -23,13 +28,23 @@ def get_previous_month_label() -> str:
         "Januari", "Februari", "Maret", "April", "Mei", "Juni",
         "Juli", "Agustus", "September", "Oktober", "November", "Desember"
     ]
-    today = datetime.today()
-    first_day_this_month = today.replace(day=1)
-    prev_month_date = first_day_this_month - timedelta(days=1)
+    prev_month_date = datetime.today().replace(day=1) - timedelta(days=1)
     return f"{months_id[prev_month_date.month - 1]} {prev_month_date.year}"
 
 
-def get_emails_from_sheet(spreadsheet_id: str, sheet_name: str) -> list[str]:
+def is_recipient_format(value: str) -> bool:
+    value = str(value or "").strip()
+
+    pattern_with_name = r'^.+<[^<>\s@]+@[^<>\s@]+\.[^<>\s@]+>$'
+    pattern_email_only = r'^[^\s@]+@[^\s@]+\.[^\s@]+$'
+
+    return bool(
+        re.match(pattern_with_name, value) or
+        re.match(pattern_email_only, value)
+    )
+
+
+def get_recipients_from_sheet(spreadsheet_id: str, sheet_name: str) -> list[str]:
     df = read_sheet(spreadsheet_id, sheet_name)
     if df.empty:
         return []
@@ -37,16 +52,39 @@ def get_emails_from_sheet(spreadsheet_id: str, sheet_name: str) -> list[str]:
     first_col = df.columns[0]
     values = df[first_col].astype(str).str.strip().tolist()
 
-    emails = [x for x in values if is_email(x)]
+    recipients = [x for x in values if is_recipient_format(x)]
 
     seen = set()
     uniq = []
-    for email in emails:
-        if email not in seen:
-            seen.add(email)
-            uniq.append(email)
+    for r in recipients:
+        if r not in seen:
+            seen.add(r)
+            uniq.append(r)
 
     return uniq
+
+
+def get_email_sender_from_config():
+    config_sheet = GSHEET["config"]
+
+    email_sender = get_cell_value(
+        sheet_id=config_sheet["sheet_id"],
+        tab_name=config_sheet["tabs"]["main"],
+        cell="B14",
+    )
+
+    app_password_sender = get_cell_value(
+        sheet_id=config_sheet["sheet_id"],
+        tab_name=config_sheet["tabs"]["main"],
+        cell="C14",
+    )
+
+    if not email_sender:
+        raise ValueError("Email sender kosong di config sheet (B14).")
+    if not app_password_sender:
+        raise ValueError("App password sender kosong di config sheet (C14).")
+
+    return email_sender, app_password_sender
 
 
 def build_html_sort_email(
@@ -69,58 +107,83 @@ def build_html_sort_email(
     template_html = f'<a href="{template_url}" target="_blank" {link_common_style}>LINK TEMPLATE</a>'
 
     return f"""
-    <div style="font-family:Arial,Helvetica,sans-serif;font-size:13.5px;color:#222;line-height:1.55">
+    <html>
+    <body style="font-family: Arial, sans-serif; font-size: 13.5px; color: #222; line-height: 1.55;">
       <p>Dear all,</p>
 
       <p>Berikut adalah link untuk sheet <b>SORT KPI Tracker</b> periode <b>{period_label}</b>: {tracker_html}</p>
       <p>Berikut juga link <b>Metabase</b> yang dapat digunakan untuk menarik data secara mandiri untuk monitoring harian: {metabase_html}</p>
 
-      <p>Untuk monitoring performance harian yang belum di-update di tracker bisa diakses secara mandiri dari link-link pada gsheet diatas.</p>
+      <p>Untuk monitoring performance harian yang belum di-update di tracker bisa diakses secara mandiri dari link-link pada gsheet di atas.</p>
 
       <p><b>NOTE:</b></p>
       <ul>
-        <li>Perlu diingatkan kembali bahwa mulai bulan <b>Oktober 2022</b>, perhitungan KPI Sort akan menggunakan skema penyesuaian KPI Sort terbaru. Terdapat perubahan parameter mulai bulan Maret dan April 2023 sesuai dengan sosialisasi {sosialisasi_html}.</li>
+        <li>Perhitungan KPI Sort menggunakan skema penyesuaian KPI Sort terbaru. Perubahan parameter mengikuti sosialisasi pada link berikut: {sosialisasi_html}.</li>
         <li>Sanggahan dibuka pada tanggal <b>2–12 setiap bulannya</b>, dan sanggahan dapat langsung dilakukan melalui google sheet berikut: {sanggahan_html}.</li>
-        <li>Wajib menggunakan template yang sudah disediakan pada link terkait ({template_html}) dengan mengisi secara lengkap raw data dan summary. Jika tidak sesuai, sanggahan ditolak.</li>
+        <li>Wajib menggunakan template yang sudah disediakan pada link terkait ({template_html}) dengan mengisi raw data dan summary secara lengkap. Jika tidak sesuai, sanggahan ditolak.</li>
         <li>Selain data dari Metabase, sanggahan akan ditolak.</li>
-        <li>Mohon isi data dengan lengkap dan jelas untuk memudahkan tim dalam validasi sanggahan. Informasi mengenai penerimaan/penolakan sanggahan dapat langsung menghubungi tim FST. Jika terdapat sanggahan melalui email maka sanggahan tidak akan diterima.</li>
+        <li>Mohon isi data dengan lengkap dan jelas untuk memudahkan tim dalam validasi sanggahan. Jika terdapat sanggahan melalui email maka sanggahan tidak akan diterima.</li>
       </ul>
 
-      <p>Untuk teman-teman Sort FST, <b>@FST Sort (ID)</b> jika ada sort team (SH/MSH manager atau Sort PIC) yang terlewat di email ini minta tolong juga untuk bisa diinfokan langsung ke tim terkait ya untuk tracker dan link Metabase-nya.</p>
+      <p>Untuk teman-teman Sort FST, <b>@FST Sort (ID)</b>, jika ada sort team yang terlewat di email ini mohon dibantu informasikan langsung ke tim terkait untuk tracker dan link Metabase-nya.</p>
 
-      <p>Terima kasih.
-      <br>Regards,
-      
-      <br><b>BI-Reporting</b></p>
-    </div>
+      <p>Terima kasih.</p>
+      <p>Regards,<br><b>BI-Reporting</b></p>
+    </body>
+    </html>
     """
 
 
-def strip_html(html: str) -> str:
+def build_plain_text(period_label: str) -> str:
     return (
-        html.replace("<br>", "\n")
-        .replace("<br/>", "\n")
-        .replace("<br />", "\n")
-        .replace("</p>", "\n\n")
-        .replace("<li>", "• ")
-        .replace("</li>", "\n")
+        f"Dear all,\n\n"
+        f"Berikut adalah email SORT KPI untuk periode {period_label}.\n\n"
+        f"Regards,\n"
+        f"BI-Reporting"
     )
 
 
-def send_day2_email() -> None:
-    smtp_user = (os.getenv("EMAIL_USER") or "").strip()
-    smtp_password = (os.getenv("EMAIL_PASSWORD") or "").strip()
+def send_email_chunked(
+    smtp_user: str,
+    smtp_password: str,
+    to_recipients: list[str],
+    subject: str,
+    html_body: str,
+    plain_body: str,
+    chunk_size: int = 50,
+) -> None:
+    context = ssl.create_default_context()
 
-    if not smtp_user or not smtp_password:
-        raise ValueError("EMAIL_USER / EMAIL_PASSWORD belum tersedia di environment.")
+    for i in range(0, len(to_recipients), chunk_size):
+        chunk = to_recipients[i:i + chunk_size]
 
-    recipients = get_emails_from_sheet(
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = subject
+        msg["From"] = f"{SENDER_DISPLAY_NAME} <{SENDER_ALIAS_EMAIL}>"
+        msg["To"] = ", ".join(chunk)
+
+        msg.attach(MIMEText(plain_body, "plain", "utf-8"))
+        msg.attach(MIMEText(html_body, "html", "utf-8"))
+
+        with smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT, context=context) as server:
+            server.login(smtp_user, smtp_password)
+            server.sendmail(smtp_user, chunk, msg.as_string())
+
+        print(f"Sent chunk {i // chunk_size + 1}: {len(chunk)} recipients")
+
+
+def run():
+    print("=== DAY 2 EMAIL START ===")
+
+    smtp_user, smtp_password = get_email_sender_from_config()
+
+    recipients = get_recipients_from_sheet(
         GSHEET["tracker"]["sheet_id"],
         GSHEET["tracker"]["tabs"]["recipients"]
     )
 
     if not recipients:
-        raise ValueError("Recipient kosong atau tidak ada email valid di tab Recipients.")
+        raise ValueError("Tab Recipients kosong atau tidak ada recipient valid.")
 
     period_label = get_previous_month_label()
     subject = f"(ID) Sort KPI Progressive Tiering - {period_label}"
@@ -134,30 +197,23 @@ def send_day2_email() -> None:
         template_url=TEMPLATE_URL,
     )
 
-    plain_body = strip_html(html_body)
+    plain_body = build_plain_text(period_label)
 
-    chunk_size = 50
-    for i in range(0, len(recipients), chunk_size):
-        to_chunk = recipients[i:i + chunk_size]
+    print(f"Recipients count: {len(recipients)}")
+    print(f"Subject: {subject}")
 
-        msg = MIMEMultipart("alternative")
-        msg["Subject"] = subject
-        msg["From"] = f"{SENDER_DISPLAY_NAME} <{SENDER_ALIAS}>"
-        msg["To"] = ", ".join(to_chunk)
+    send_email_chunked(
+        smtp_user=smtp_user,
+        smtp_password=smtp_password,
+        to_recipients=recipients,
+        subject=subject,
+        html_body=html_body,
+        plain_body=plain_body,
+        chunk_size=50,
+    )
 
-        msg.attach(MIMEText(plain_body, "plain", "utf-8"))
-        msg.attach(MIMEText(html_body, "html", "utf-8"))
+    print("=== DAY 2 EMAIL DONE ===")
 
-        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
-            server.starttls()
-            server.login(smtp_user, smtp_password)
-            server.sendmail(smtp_user, to_chunk, msg.as_string())
 
-        print(f"Email sent to chunk {i // chunk_size + 1}: {len(to_chunk)} recipients")
-
-    print("\n[9/6] Send email to stakeholders...")
-    send_day2_email()
-
-  
-
-    print(f"Day 2 email sent successfully. Subject: {subject}")
+if __name__ == "__main__":
+    run()
