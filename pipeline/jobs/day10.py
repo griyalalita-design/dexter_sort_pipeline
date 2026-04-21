@@ -18,7 +18,7 @@ def run():
         spreadsheet_id=GSHEET["tracker"]["sheet_id"],
         sheet_name=GSHEET["tracker"]["tabs"]["raw_data_cost"],
         df=df_cpp,
-        start_cell="A3",
+        start_cell="B3",
         include_header=False
     )
     print("===== Input Data ke Tracker Done =====")
