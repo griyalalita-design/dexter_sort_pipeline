@@ -26,7 +26,7 @@ def run():
     print("===== Mulai Input ke Sanggahan ya =====")
     write_sheet(
         spreadsheet_id=GSHEET["sanggahan"]["sheet_id"],
-        sheet_name=GSHEET["sanggahan"]["tabs"]["dws"],  # pastikan key ini ada di settings.py
+        sheet_name=GSHEET["sanggahan"]["tabs"]["dws"],
         df=df_dws,
         start_cell="A3",
         include_header=False
