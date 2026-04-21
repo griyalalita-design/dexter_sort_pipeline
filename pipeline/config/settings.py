@@ -38,7 +38,8 @@ GSHEET = {
             "lnd_rate_b2b_all_b2c_cold": "LnD Rate B2B All & B2C Cold",
             "lnd_rate_keyshipper" : "LnD Rate Keyshipper",
             "lnd_rate_others":"LnD Rate Others",
-            "dws":"DWS"
+            "dws":"DWS",
+            "cpp":"CPP"
               # sesuaikan nama tab
         },
         # Range yang di-clear di semua tab sanggahan (sesuaikan)
@@ -49,8 +50,8 @@ GSHEET = {
               "lnd_rate_b2b_all_b2c_cold": ["A3:C"],
               "lnd_rate_keyshipper": ["A3:C"],
               "lnd_rate_others": ["A3:C"],
-              "dws" : ["A3:F"]
-
+              "dws" : ["A3:F"],
+              "cpp":["A3:K"]
         }
     },
 
