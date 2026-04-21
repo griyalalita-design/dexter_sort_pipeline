@@ -6,7 +6,7 @@ on:
   - cron: "0 11 10 * *"
 
 jobs:
-  day2:
+  day10:
     runs-on: ubuntu-latest
     env:
       GSHEET_SERVICE_ACCOUNT_JSON: ${{ secrets.GSHEET_SERVICE_ACCOUNT_JSON }}
