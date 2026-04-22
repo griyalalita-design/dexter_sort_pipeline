@@ -489,92 +489,20 @@ METABASE_CONFIG = {
         }
     }
 }
-# ── Email ─────────────────────────────────────────────────────
-EMAIL = {
-    "sender": "your_email@company.com",       # TODO: ganti
-    "smtp_server": "smtp.gmail.com",           # ganti kalau bukan Gmail
-    "smtp_port": 587,
-    # Password disimpen di environment variable, bukan di sini
-    # Set di GitHub Secrets dengan nama EMAIL_PASSWORD
-
-    "recipients": {
-        "day2_notification": [
-            "recipient1@company.com",          # TODO: isi penerima notif tanggal 2
-        ],
-        "day6_fst": [
-            "fst_team@company.com",            # TODO: penerima notif FST tanggal 6
-        ],
-        "day10_reviewer": [
-            "reviewer@company.com",            # TODO: penerima notif reviewer
-        ],
-        "day14_reviewer": [
-            "reviewer@company.com",
-        ],
-        "day16_psp": [
-            "psp_team@company.com",            # TODO: penerima notif PSP
-        ],
+# ── Archieved File ─────────────────────────────────────────────────────
+ARCHIVE_CONFIG = {
+    "tracker": {
+        "source_file_id": "10jwwERVKLvdrk7tkmqVXeZHGp3Q1lV_2IjFsc6fXQhQ",
+        "target_folder_id": "18BwwadT0kgyPgvdmOg3b7CP29zqrTFB4",
     },
-
-    # Body email per tanggal — edit sesuai kebutuhan
-    "body": {
-        "day2": """
-Hi Team,
-
-Data performance bulan {bulan} sudah tersedia di tracker.
-Silakan cek link berikut:
-
-Tracker: {tracker_url}
-Sanggahan: {sanggahan_url}
-
-Periode sanggahan: {start_date} s/d {end_date}
-
-Regards,
-Automation Pipeline
-        """,
-
-        "day6_fst": """
-Hi FST Team,
-
-Reminder: Data DWS untuk bulan {bulan} belum diupdate.
-Mohon segera update di link berikut: {dws_url}
-
-Regards,
-Automation Pipeline
-        """,
-
-        "day10_reviewer": """
-Hi Reviewer,
-
-Data sanggahan bulan {bulan} sudah bisa direview.
-Silakan cek: {sanggahan_url}
-
-Regards,
-Automation Pipeline
-        """,
-
-        "day14_reviewer": """
-Hi Reviewer,
-
-Reminder: Masih ada data sanggahan bulan {bulan} yang belum direview.
-Mohon segera review di: {sanggahan_url}
-
-Regards,
-Automation Pipeline
-        """,
-
-        "day16_psp": """
-Hi PSP Team,
-
-Data performance bulan {bulan} sudah final dan siap digunakan.
-
-Tracker  : {tracker_url}
-Sanggahan: {sanggahan_url}
-Converter: {converter_url}
-
-Regards,
-Automation Pipeline
-        """,
-    }
+    "sanggahan": {
+        "source_file_id": "1q1CkYFiZQKRvfYDjZGOJmqNOndbH3hd7Du_Pq0Wn7AU",
+        "target_folder_id": "12d8VANvDb2earFpAJOgQLj4kW1ITZm_U",
+    },
+    "converter": {
+        "source_file_id": "1Sn2HisZcT81duWuWtKpVx_E_8192XeFIwtXrrDoSpGQ",
+        "target_folder_id": "1Dx2EJoddhhdSqJs5qkNG8rWB9ydCc1Sl",
+    },
 }
 
 # ── Pipeline Schedule ─────────────────────────────────────────
