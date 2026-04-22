@@ -60,13 +60,5 @@ def run():
         dest_start_cell="BO4",
     )
 
-
-
-
-
-
-        
-
-
 if __name__ == "__main__":
     run()
