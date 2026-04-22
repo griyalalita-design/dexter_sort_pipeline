@@ -114,8 +114,8 @@ GSHEET = {
         "url": "https://docs.google.com/spreadsheets/d/1Sn2HisZcT81duWuWtKpVx_E_8192XeFIwtXrrDoSpGQ/edit?gid=0#gid=0",
         "sheet_id": "1Sn2HisZcT81duWuWtKpVx_E_8192XeFIwtXrrDoSpGQ",
         "tabs": {
-            "performance": "Master Tracker by Hub",      # sesuaikan nama tab
-            "recipient":   "Staff List",  # sesuaikan nama tab
+            "master_tracker_by_hub": "Master Tracker by Hub",      # sesuaikan nama tab
+            "staff_list":   "Staff List",  # sesuaikan nama tab
         }
     },
 
