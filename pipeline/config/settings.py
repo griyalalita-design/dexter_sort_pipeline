@@ -18,7 +18,7 @@ GSHEET = {
             "raw_data_all":  "Raw Data [All]",
             "raw_data_cost": "Raw Data [Cost]",
             "recipients": "recipients",
-            "master_tracker": "Master Tracker by Hub",
+            "master_tracker_by_hub": "Master Tracker by Hub",
         },
         # Range yang di-clear saat Day 1 (sesuaikan)
         "clear_ranges": {
