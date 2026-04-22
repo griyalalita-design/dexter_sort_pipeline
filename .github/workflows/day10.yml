@@ -1,4 +1,4 @@
-name: Run Day 10
+name: Run Day 15 CPP
 
 on:
   workflow_dispatch:
@@ -26,7 +26,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run Day 10
+      - name: Run Day 15 CPP
         working-directory: pipeline
         env:
           PYTHONPATH: ${{ github.workspace }}/pipeline
