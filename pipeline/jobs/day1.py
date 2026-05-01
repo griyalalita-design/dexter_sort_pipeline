@@ -91,8 +91,8 @@ def _update_key_shipper_from_pns() -> None:
 
 # =================== Buat Cleaning Data Tracker dan Sanggahan ========================== #
 def run():
-    _, _, bulan = get_last_month_range()
-    print(f"=== DAY 1 - Persiapan data bulan {bulan} ===")
+    # _, _, bulan = get_last_month_range()
+    # print(f"=== DAY 1 - Persiapan data bulan {bulan} ===")
 
     # STEP 1: Cleansing Tracker
     print("\n[1/3] Cleansing tracker...")
