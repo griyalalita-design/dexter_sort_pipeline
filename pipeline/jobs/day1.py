@@ -64,29 +64,57 @@ def _update_key_shipper_from_pns() -> None:
     pns = GSHEET["pns"]
     key = GSHEET["key_shipper"]
 
-    df = _read_sheet_header_row2(pns["sheet_id"], pns["tabs"]["compile"])
-    df.columns = df.columns.str.strip()
+    # ✅ pakai read_sheet (header row 1)
+    df = read_sheet(
+        pns["sheet_id"],
+        pns["tabs"]["compile"]
+    )
+    df.columns = df.columns.astype(str).str.strip()
 
-    col_global = pns["columns"]["global_id"]
-    col_cat = pns["columns"]["category"]
+    col_global = pns["columns"]["global_id"]   # "Shipper ID"
+    col_cat = pns["columns"]["category"]       # "Type"
 
-    if col_global not in df.columns or col_cat not in df.columns:
-        raise ValueError("Kolom Global ID / Shipper Service Category tidak ditemukan di PNS.")
+    # ✅ validasi kolom
+    missing_cols = [c for c in [col_global, col_cat] if c not in df.columns]
+    if missing_cols:
+        raise ValueError(
+            f"Kolom PNS tidak ditemukan: {missing_cols}. "
+            f"Kolom tersedia: {df.columns.tolist()}"
+        )
 
-    df = df[
-        pd.to_numeric(
-            df[col_global].replace(r"^\s*#?N/?A.*$", pd.NA, regex=True),
-            errors="coerce",
-        ).notna()
-    ]
+    # ✅ filter ID valid (buang NA, teks aneh, dll)
+    valid_mask = pd.to_numeric(
+        df[col_global].replace(r"^\s*#?N/?A.*$", pd.NA, regex=True),
+        errors="coerce"
+    ).notna()
 
+    df = df[valid_mask].copy()
+
+    # ✅ ambil kolom yang dibutuhkan
     key_df = df[[col_global, col_cat]].copy()
-    key_df[col_global] = key_df[col_global].astype(int)
+
+    # formatting
+    key_df[col_global] = pd.to_numeric(key_df[col_global], errors="coerce").astype(int)
     key_df[col_cat] = key_df[col_cat].astype(str).str.strip()
 
+    # optional: drop duplicates biar bersih
+    key_df = key_df.drop_duplicates()
+
+    # ✅ write ke gsheet
     ws = open_by_key(key["sheet_id"]).worksheet(key["tabs"]["main"])
-    clear_range(key["sheet_id"], key["tabs"]["main"], key["clear_range"])
-    ws.update(key["start_cell"], key_df.values.tolist())
+
+    clear_range(
+        key["sheet_id"],
+        key["tabs"]["main"],
+        key["clear_range"]
+    )
+
+    ws.update(
+        key["start_cell"],
+        key_df.values.tolist()
+    )
+
+    print(f"✅ Key Shipper updated: {len(key_df)} rows")
 
 
 # =================== Buat Cleaning Data Tracker dan Sanggahan ========================== #
