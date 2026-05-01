@@ -4,7 +4,7 @@
 # ============================================================
 
 from config.settings import GSHEET
-from utils.gsheet import clear_range, open_by_key
+from utils.gsheet import clear_range, open_by_key, read_sheet
 from utils.transform import get_last_month_range
 import pandas as pd
 
