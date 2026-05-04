@@ -19,7 +19,7 @@ SMTP_PORT = 465
 
 # hardcode links
 METABASE_URL = "https://docs.google.com/spreadsheets/d/10jwwERVKLvdrk7tkmqVXeZHGp3Q1lV_2IjFsc6fXQhQ/edit?gid=26110973#gid=26110973"
-SOSIALISASI_URL = "https://docs.google.com/presentation/d/1-X4ov1yvZ7IlCxhhoS72l3g9ItdY6UpFI480jsfLHg4/edit?slide=id.g1e6796d10b0_0_192#slide=id.g1e6796d10b0_0_192"
+SOSIALISASI_URL = "https://docs.google.com/presentation/d/1uUuU5E4crqCGKUeeAwQlq18pLSqVEWl6VMrgqiGbK8k/edit?slide=id.g3530d417fc4_0_85#slide=id.g3530d417fc4_0_85"
 TEMPLATE_URL = "https://docs.google.com/spreadsheets/d/10jwwERVKLvdrk7tkmqVXeZHGp3Q1lV_2IjFsc6fXQhQ/edit?gid=0#gid=0"
 
 
