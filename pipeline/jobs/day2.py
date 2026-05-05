@@ -144,16 +144,22 @@ def run_report(report_group, report_key, segment_key, runtime_values, token):
 # =========================
 def reduce_poa_columns(df):
     if df.empty:
-        return pd.DataFrame(columns=["orig_hub_name", "remarks"])
+        return pd.DataFrame(columns=["orig_hub_name", "remarks", "total_vol"])
 
-    required_cols = ["orig_hub_name", "remarks"]
+    required_cols = ["orig_hub_name", "remarks", "total_vol_poa_iv_closest_wave"]
     missing_cols = [c for c in required_cols if c not in df.columns]
     if missing_cols:
         raise ValueError(f"Kolom POA tidak ditemukan: {missing_cols}")
 
     out = df[required_cols].copy()
+
+    out = out.rename(columns={
+        "total_vol_poa_iv_closest_wave": "total_vol"
+    })
+
     out["orig_hub_name"] = out["orig_hub_name"].astype(str).str.strip()
     out["remarks"] = out["remarks"].astype(str).str.strip().str.lower()
+    out["total_vol"] = pd.to_numeric(out["total_vol"], errors="coerce").fillna(0)
 
     return out
 
@@ -173,64 +179,12 @@ def compile_poa_segment(results, segment_key):
 
 
 def build_poa_pivot(df_compiled):
-    if df_compiled.empty:
-        return pd.DataFrame(columns=[
-            "orig_hub_name",
-            "hit",
-            "hit: offload",
-            "miss",
-            "miss: potential hit",
-            "grand_total",
-            "total_hit"
-        ])
-
-    df = df_compiled.copy()
-
-    # normalisasi remarks (penting banget)
-    df["remarks"] = df["remarks"].astype(str).str.strip().str.lower()
-
-    # 🚨 buang others
-    df = df[df["remarks"] != "others"]
-
-    pivot = (
-        df.assign(count=1)
-        .pivot_table(
-            index="orig_hub_name",
-            columns="remarks",
-            values="count",
-            aggfunc="sum",
-            fill_value=0
-        )
-        .reset_index()
-    )
-
-    # expected kolom
     expected_cols = [
         "hit",
         "hit: offload",
         "miss",
         "miss: potential hit"
     ]
-
-    for col in expected_cols:
-        if col not in pivot.columns:
-            pivot[col] = 0
-
-    # total_hit
-    pivot["total_hit"] = pivot["hit"] + pivot["hit: offload"]
-
-    # grand_total (exclude others)
-    pivot["grand_total"] = (
-        pivot["hit"]
-        + pivot["hit: offload"]
-        + pivot["miss"]
-        + pivot["miss: potential hit"]
-    )
-
-    # rename
-    pivot = pivot.rename(columns={
-        "orig_hub_name": "orig_hub_name"
-    })
 
     final_cols = [
         "orig_hub_name",
@@ -241,6 +195,41 @@ def build_poa_pivot(df_compiled):
         "grand_total",
         "total_hit"
     ]
+
+    if df_compiled.empty:
+        return pd.DataFrame(columns=final_cols)
+
+    df = df_compiled.copy()
+
+    df["remarks"] = df["remarks"].astype(str).str.strip().str.lower()
+    df["total_vol"] = pd.to_numeric(df["total_vol"], errors="coerce").fillna(0)
+
+    # kalau others tidak mau dihitung
+    df = df[df["remarks"] != "others"]
+
+    pivot = (
+        df.pivot_table(
+            index="orig_hub_name",
+            columns="remarks",
+            values="total_vol",
+            aggfunc="sum",
+            fill_value=0
+        )
+        .reset_index()
+    )
+
+    for col in expected_cols:
+        if col not in pivot.columns:
+            pivot[col] = 0
+
+    pivot["total_hit"] = pivot["hit"] + pivot["hit: offload"]
+
+    pivot["grand_total"] = (
+        pivot["hit"]
+        + pivot["hit: offload"]
+        + pivot["miss"]
+        + pivot["miss: potential hit"]
+    )
 
     return pivot[final_cols].sort_values("orig_hub_name").reset_index(drop=True)
 
