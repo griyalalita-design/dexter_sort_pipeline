@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 import pandas as pd
 
 from utils.metabase import tarik_metabase, get_token
-from utils.gsheet import read_sheet, get_cell_value, write_sheet, clear_range
+from utils.gsheet import read_sheet, write_sheet, clear_range
 from config.settings import METABASE_CONFIG, GSHEET
 
 
@@ -146,7 +146,12 @@ def reduce_poa_columns(df):
     if df.empty:
         return pd.DataFrame(columns=["orig_hub_name", "remarks", "total_vol"])
 
-    required_cols = ["orig_hub_name", "remarks", "total_vol_poa_iv_closest_wave"]
+    required_cols = [
+        "orig_hub_name",
+        "remarks",
+        "total_vol_poa_iv_closest_wave"
+    ]
+
     missing_cols = [c for c in required_cols if c not in df.columns]
     if missing_cols:
         raise ValueError(f"Kolom POA tidak ditemukan: {missing_cols}")
@@ -173,7 +178,7 @@ def compile_poa_segment(results, segment_key):
         compiled.append(reduce_poa_columns(df))
 
     if not compiled:
-        return pd.DataFrame(columns=["orig_hub_name", "remarks"])
+        return pd.DataFrame(columns=["orig_hub_name", "remarks", "total_vol"])
 
     return pd.concat(compiled, ignore_index=True)
 
@@ -204,7 +209,7 @@ def build_poa_pivot(df_compiled):
     df["remarks"] = df["remarks"].astype(str).str.strip().str.lower()
     df["total_vol"] = pd.to_numeric(df["total_vol"], errors="coerce").fillna(0)
 
-    # kalau others tidak mau dihitung
+    # Exclude others dari perhitungan POA
     df = df[df["remarks"] != "others"]
 
     pivot = (
@@ -234,44 +239,29 @@ def build_poa_pivot(df_compiled):
     return pivot[final_cols].sort_values("orig_hub_name").reset_index(drop=True)
 
 
-# =========================
-# LND HELPERS
-# =========================
-def reduce_lnd_columns(df):
-    if df.empty:
-        return pd.DataFrame(columns=["hub", "total_loss_damage", "total_volume"])
-
-    required_cols = ["hub", "total_loss_damage", "total_volume"]
-    missing_cols = [c for c in required_cols if c not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Kolom LND tidak ditemukan: {missing_cols}")
-
-    out = df[required_cols].copy()
-    out["hub"] = out["hub"].astype(str).str.strip()
-
-    return out
-
-def dump_to_tracker(
+def dump_poa_to_tracker(
     pivot_poa_b2b_cc: pd.DataFrame,
     pivot_poa_fsbd: pd.DataFrame,
     pivot_poa_others: pd.DataFrame,
-    lnd_b2b_cc: pd.DataFrame,
-    lnd_fsbd: pd.DataFrame,
-    lnd_others: pd.DataFrame,
 ) -> None:
     tracker_cfg = GSHEET["tracker"]
     tracker_sheet_id = tracker_cfg["sheet_id"]
     tracker_tab = tracker_cfg["tabs"]["raw_data_all"]
 
-    # clear semua range dulu
-    for r in tracker_cfg["clear_ranges"]["raw_data_all"]:
+    # Clear POA range saja
+    poa_clear_ranges = [
+        "C4:I",
+        "P4:V",
+        "AC4:AI",
+    ]
+
+    for r in poa_clear_ranges:
         clear_range(
             spreadsheet_id=tracker_sheet_id,
             sheet_name=tracker_tab,
             range_a1=r,
         )
 
-    # dump tanpa header
     write_sheet(
         spreadsheet_id=tracker_sheet_id,
         sheet_name=tracker_tab,
@@ -296,46 +286,18 @@ def dump_to_tracker(
         include_header=False,
     )
 
-    write_sheet(
-        spreadsheet_id=tracker_sheet_id,
-        sheet_name=tracker_tab,
-        df=lnd_b2b_cc,
-        start_cell="AP4",
-        include_header=False,
-    )
-
-    write_sheet(
-        spreadsheet_id=tracker_sheet_id,
-        sheet_name=tracker_tab,
-        df=lnd_fsbd,
-        start_cell="AY4",
-        include_header=False,
-    )
-
-    write_sheet(
-        spreadsheet_id=tracker_sheet_id,
-        sheet_name=tracker_tab,
-        df=lnd_others,
-        start_cell="BH4",
-        include_header=False,
-    )
-
-    print("Tracker updated successfully.")
+    print("POA tracker updated successfully.")
 
 
-def dump_to_sanggahan(
+def dump_poa_to_sanggahan(
     pivot_poa_b2b_cc: pd.DataFrame,
     pivot_poa_fsbd: pd.DataFrame,
     pivot_poa_others: pd.DataFrame,
-    lnd_b2b_cc: pd.DataFrame,
-    lnd_fsbd: pd.DataFrame,
-    lnd_others: pd.DataFrame,
 ) -> None:
     sanggahan_cfg = GSHEET["sanggahan"]
     sanggahan_sheet_id = sanggahan_cfg["sheet_id"]
     tabs = sanggahan_cfg["tabs"]
 
-    # dump tanpa header
     write_sheet(
         spreadsheet_id=sanggahan_sheet_id,
         sheet_name=tabs["poa_iv_b2b_all_b2c_cold"],
@@ -360,44 +322,20 @@ def dump_to_sanggahan(
         include_header=False,
     )
 
-    write_sheet(
-        spreadsheet_id=sanggahan_sheet_id,
-        sheet_name=tabs["lnd_rate_b2b_all_b2c_cold"],
-        df=lnd_b2b_cc,
-        start_cell="A3",
-        include_header=False,
-    )
-
-    write_sheet(
-        spreadsheet_id=sanggahan_sheet_id,
-        sheet_name=tabs["lnd_rate_keyshipper"],
-        df=lnd_fsbd,
-        start_cell="A3",
-        include_header=False,
-    )
-
-    write_sheet(
-        spreadsheet_id=sanggahan_sheet_id,
-        sheet_name=tabs["lnd_rate_others"],
-        df=lnd_others,
-        start_cell="A3",
-        include_header=False,
-    )
-
-    print("Sanggahan updated successfully.")
+    print("POA sanggahan updated successfully.")
 
 
 def run():
-    print("=== DAY 2 START ===")
+    print("=== DAY 2 POA ONLY START ===")
 
     start_date, end_date = get_previous_month_period()
     print(f"\n[0/6] Period: {start_date} to {end_date}")
 
-    print("\n[2/6] Get Metabase token...")
+    print("\n[1/6] Get Metabase token...")
     token = get_token()
     print("Token loaded:", bool(token))
 
-    print("\n[3/6] Build shipper lists...")
+    print("\n[2/6] Build shipper lists...")
     b2b_cc_list, fsbd_list = build_shipper_lists()
 
     runtime_values = {
@@ -410,15 +348,26 @@ def run():
     # =========================
     # POA
     # =========================
-    print("\n[4/6] Pull POA reports...")
+    print("\n[3/6] Pull POA reports...")
     poa_results = {}
 
-    poa_report_keys = ["poa_iv_1", "poa_iv_2", "poa_iv_3", "poa_iv_4"]
-    segment_keys = ["b2b_cc", "fsbd", "others"]
+    poa_report_keys = [
+        "poa_iv_1",
+        "poa_iv_2",
+        "poa_iv_3",
+        "poa_iv_4",
+    ]
+
+    segment_keys = [
+        "b2b_cc",
+        "fsbd",
+        "others",
+    ]
 
     for report_key in poa_report_keys:
         for segment_key in segment_keys:
             result_name = f"{report_key}_{segment_key}"
+
             poa_results[result_name] = run_report(
                 report_group="poa",
                 report_key=report_key,
@@ -427,7 +376,8 @@ def run():
                 token=token,
             )
 
-    print("\n[5/6] Compile and pivot POA...")
+    print("\n[4/6] Compile and pivot POA...")
+
     compiled_poa_b2b_cc = compile_poa_segment(poa_results, "b2b_cc")
     compiled_poa_fsbd = compile_poa_segment(poa_results, "fsbd")
     compiled_poa_others = compile_poa_segment(poa_results, "others")
@@ -436,75 +386,40 @@ def run():
     pivot_poa_fsbd = build_poa_pivot(compiled_poa_fsbd)
     pivot_poa_others = build_poa_pivot(compiled_poa_others)
 
+    print("compiled_poa_b2b_cc shape:", compiled_poa_b2b_cc.shape)
+    print("compiled_poa_fsbd shape:", compiled_poa_fsbd.shape)
+    print("compiled_poa_others shape:", compiled_poa_others.shape)
+
     print("pivot_poa_b2b_cc shape:", pivot_poa_b2b_cc.shape)
     print("pivot_poa_fsbd shape:", pivot_poa_fsbd.shape)
     print("pivot_poa_others shape:", pivot_poa_others.shape)
 
-    # =========================
-    # LND
-    # =========================
-    print("\n[6/6] Pull LND reports...")
-    lnd_results = {}
-
-    for segment_key in segment_keys:
-        result_name = f"lnd_1_{segment_key}"
-        lnd_results[result_name] = run_report(
-            report_group="lnd",
-            report_key="lnd_1",
-            segment_key=segment_key,
-            runtime_values=runtime_values,
-            token=token,
-        )
-
-    lnd_b2b_cc = reduce_lnd_columns(lnd_results["lnd_1_b2b_cc"])
-    lnd_fsbd = reduce_lnd_columns(lnd_results["lnd_1_fsbd"])
-    lnd_others = reduce_lnd_columns(lnd_results["lnd_1_others"])
-
-    print("lnd_b2b_cc shape:", lnd_b2b_cc.shape)
-    print("lnd_fsbd shape:", lnd_fsbd.shape)
-    print("lnd_others shape:", lnd_others.shape)
-
-    print("\n[7/6] Dump to tracker...")
-    dump_to_tracker(
+    print("\n[5/6] Dump POA to tracker...")
+    dump_poa_to_tracker(
         pivot_poa_b2b_cc=pivot_poa_b2b_cc,
         pivot_poa_fsbd=pivot_poa_fsbd,
         pivot_poa_others=pivot_poa_others,
-        lnd_b2b_cc=lnd_b2b_cc,
-        lnd_fsbd=lnd_fsbd,
-        lnd_others=lnd_others,
     )
 
-    print("\n[8/6] Dump to sanggahan...")
-    dump_to_sanggahan(
+    print("\n[6/6] Dump POA to sanggahan...")
+    dump_poa_to_sanggahan(
         pivot_poa_b2b_cc=pivot_poa_b2b_cc,
         pivot_poa_fsbd=pivot_poa_fsbd,
         pivot_poa_others=pivot_poa_others,
-        lnd_b2b_cc=lnd_b2b_cc,
-        lnd_fsbd=lnd_fsbd,
-        lnd_others=lnd_others,
     )
 
-    print("\n=== DAY 2 DONE ===")
+    print("\n=== DAY 2 POA ONLY DONE ===")
 
     return {
-        # raw
         "poa_results": poa_results,
-        "lnd_results": lnd_results,
 
-        # poa compiled
         "compiled_poa_b2b_cc": compiled_poa_b2b_cc,
         "compiled_poa_fsbd": compiled_poa_fsbd,
         "compiled_poa_others": compiled_poa_others,
 
-        # poa final
         "pivot_poa_b2b_cc": pivot_poa_b2b_cc,
         "pivot_poa_fsbd": pivot_poa_fsbd,
         "pivot_poa_others": pivot_poa_others,
-
-        # lnd final
-        "lnd_b2b_cc": lnd_b2b_cc,
-        "lnd_fsbd": lnd_fsbd,
-        "lnd_others": lnd_others,
     }
 
 
