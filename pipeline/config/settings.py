@@ -39,19 +39,19 @@ GSHEET = {
             "lnd_rate_keyshipper" : "LnD Rate Keyshipper",
             "lnd_rate_others":"LnD Rate Others",
             "dws":"DWS",
-            "cpp":"CPP"
+ 
               # sesuaikan nama tab
         },
         # Range yang di-clear di semua tab sanggahan (sesuaikan)
         "clear_ranges": {
-              "poa_iv_b2b_all_b2c_cold": ["A3:G"],
-              "poa_iv_keyshipper": ["A3:G"],
-              "poa_iv_others": ["A3:G"],
-              "lnd_rate_b2b_all_b2c_cold": ["A3:C"],
-              "lnd_rate_keyshipper": ["A3:C"],
-              "lnd_rate_others": ["A3:C"],
-              "dws" : ["A3:F"],
-              "cpp":["A3:K"]
+              "poa_iv_b2b_all_b2c_cold": ["A3:M"],
+              "poa_iv_keyshipper": ["A3:M"],
+              "poa_iv_others": ["A3:M"],
+              "lnd_rate_b2b_all_b2c_cold": ["A3:H"],
+              "lnd_rate_keyshipper": ["A3:H"],
+              "lnd_rate_others": ["A3:H"],
+              "dws" : ["A3:K"],
+     
         }
     },
 
