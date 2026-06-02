@@ -48,14 +48,14 @@ def open_by_url(url: str) -> gspread.Spreadsheet:
 
 
 # --- Core ops ---
-def _a1(sheet_name: str, range_a1: str) -> str:
-    """
-    Build safe A1 notation. Always quote sheet names to handle spaces/symbols.
-    """
-    name = sheet_name
-    if not (name.startswith("'") and name.endswith("'")):
-        name = "'" + name.replace("'", "''") + "'"
-    return f"{name}!{range_a1}"
+def _a1(sheet_name, range_a1):
+    safe_sheet_name = str(sheet_name).replace("'", "''")
+
+    # Kalau nama tab simple tanpa spasi/simbol, tidak perlu quote
+    if safe_sheet_name.replace("_", "").replace("-", "").isalnum():
+        return f"{safe_sheet_name}!{range_a1}"
+
+    return f"'{safe_sheet_name}'!{range_a1}"
 
 
 def clear_range(spreadsheet_id: str, sheet_name: str, range_a1: str) -> None:
