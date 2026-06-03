@@ -193,3 +193,80 @@ def mark_sanggahan_open(spreadsheet_id: str, sheet_name: str) -> None:
     """
     # Placeholder: implement column-based update when schema is final
     return
+
+import pandas as pd
+
+
+def flatten_master_tracker(df_master, snapshot_month):
+    """
+    Convert Master Tracker by Hub
+    menjadi format long / AI friendly
+
+    Output:
+    snapshot_month
+    hub
+    kpi
+    value
+    tier
+    """
+
+    KPI_MAPPING = [
+        {
+            "kpi": "POA B2B CC",
+            "value_col": "POA-IV B2B All & B2C Cold",
+            "tier_col": "Tier_POA_B2B_CC"
+        },
+        {
+            "kpi": "POA Keyshipper",
+            "value_col": "POA-IV Keyshipper",
+            "tier_col": "Tier_POA_Keyshipper"
+        },
+        {
+            "kpi": "POA Others",
+            "value_col": "POA-IV Others",
+            "tier_col": "Tier_POA_Others"
+        },
+        {
+            "kpi": "LND B2B CC",
+            "value_col": "LnD Rate B2B All & B2C Cold",
+            "tier_col": "Tier_LND_B2B_CC"
+        },
+        {
+            "kpi": "LND Keyshipper",
+            "value_col": "LnD Rate Keyshipper",
+            "tier_col": "Tier_LND_Keyshipper"
+        },
+        {
+            "kpi": "LND Others",
+            "value_col": "LnD Rate Others",
+            "tier_col": "Tier_LND_Others"
+        },
+        {
+            "kpi": "DWS",
+            "value_col": "DWS",
+            "tier_col": "Tier_DWS"
+        },
+        {
+            "kpi": "CPP",
+            "value_col": "CPP",
+            "tier_col": "Tier_CPP"
+        }
+    ]
+
+    rows = []
+
+    for _, row in df_master.iterrows():
+
+        hub = row["Hub"]
+
+        for mapping in KPI_MAPPING:
+
+            rows.append({
+                "snapshot_month": snapshot_month,
+                "hub": hub,
+                "kpi": mapping["kpi"],
+                "value": row.get(mapping["value_col"]),
+                "tier": row.get(mapping["tier_col"])
+            })
+
+    return pd.DataFrame(rows)
