@@ -139,6 +139,63 @@ def run_report(report_group, report_key, segment_key, runtime_values, token):
 
     return df_result
 
+def run_report_in_chunks(
+    report_group,
+    report_key,
+    segment_key,
+    runtime_values,
+    token,
+    list_key,
+    chunk_size=50,
+):
+    full_list = runtime_values.get(list_key, [])
+
+    if not full_list:
+        print(f"[SKIP] {report_key}_{segment_key}: {list_key} kosong")
+        return pd.DataFrame()
+
+    all_df = []
+
+    print(
+        f"\n[CHUNK MODE] {report_key}_{segment_key} | "
+        f"total {list_key}: {len(full_list)} | chunk_size: {chunk_size}"
+    )
+
+    for i in range(0, len(full_list), chunk_size):
+        chunk = full_list[i:i + chunk_size]
+        start_no = i + 1
+        end_no = min(i + chunk_size, len(full_list))
+
+        runtime_chunk = runtime_values.copy()
+        runtime_chunk[list_key] = chunk
+
+        print(f"\n[CHUNK] {report_key}_{segment_key} {start_no}-{end_no}")
+
+        try:
+            df_chunk = run_report(
+                report_group=report_group,
+                report_key=report_key,
+                segment_key=segment_key,
+                runtime_values=runtime_chunk,
+                token=token,
+            )
+
+            if not df_chunk.empty:
+                all_df.append(df_chunk)
+
+        except Exception as e:
+            print(f"[FAILED CHUNK] {report_key}_{segment_key} {start_no}-{end_no}")
+            print(repr(e))
+
+    if not all_df:
+        print(f"[WARNING] Semua chunk kosong/gagal: {report_key}_{segment_key}")
+        return pd.DataFrame()
+
+    final_df = pd.concat(all_df, ignore_index=True)
+    print(f"[CHUNK DONE] {report_key}_{segment_key} final shape: {final_df.shape}")
+
+    return final_df
+
 
 # =========================
 # POA
@@ -516,38 +573,69 @@ def run():
     # =========================
     # LND
     # =========================
+    # if RUN_LND:
+    #     print("\n[5] Pull LND reports...")
+
+    #     for segment_key in segment_keys:
+    #         result_name = f"lnd_1_{segment_key}"
+
+    #         lnd_results[result_name] = run_report(
+    #             report_group="lnd",
+    #             report_key="lnd_1",
+    #             segment_key=segment_key,
+    #             runtime_values=runtime_values,
+    #             token=token,
+    #         )
+
+    #     print("\n[6] Reduce LND columns...")
+
+    #     lnd_b2b_cc = reduce_lnd_columns(
+    #         lnd_results.get("lnd_1_b2b_cc", pd.DataFrame())
+    #     )
+    #     lnd_fsbd = reduce_lnd_columns(
+    #         lnd_results.get("lnd_1_fsbd", pd.DataFrame())
+    #     )
+    #     lnd_others = reduce_lnd_columns(
+    #         lnd_results.get("lnd_1_others", pd.DataFrame())
+    #     )
+
+    #     print("lnd_b2b_cc shape:", lnd_b2b_cc.shape)
+    #     print("lnd_fsbd shape:", lnd_fsbd.shape)
+    #     print("lnd_others shape:", lnd_others.shape)
+
+    # else:
+    #     print("\n[SKIP] LND disabled")
     if RUN_LND:
         print("\n[5] Pull LND reports...")
 
         for segment_key in segment_keys:
             result_name = f"lnd_1_{segment_key}"
 
-            lnd_results[result_name] = run_report(
-                report_group="lnd",
-                report_key="lnd_1",
-                segment_key=segment_key,
-                runtime_values=runtime_values,
-                token=token,
-            )
+            if segment_key == "b2b_cc":
+                lnd_results[result_name] = run_report_in_chunks(
+                    report_group="lnd",
+                    report_key="lnd_1",
+                    segment_key="b2b_cc",
+                    runtime_values=runtime_values,
+                    token=token,
+                    list_key="b2b_cc",
+                    chunk_size=50,
+                )
+            else:
+                try:
+                    lnd_results[result_name] = run_report(
+                        report_group="lnd",
+                        report_key="lnd_1",
+                        segment_key=segment_key,
+                        runtime_values=runtime_values,
+                        token=token,
+                    )
+                except Exception as e:
+                    print(f"[FAILED] {result_name}")
+                    print(repr(e))
+                    lnd_results[result_name] = pd.DataFrame()
 
         print("\n[6] Reduce LND columns...")
-
-        lnd_b2b_cc = reduce_lnd_columns(
-            lnd_results.get("lnd_1_b2b_cc", pd.DataFrame())
-        )
-        lnd_fsbd = reduce_lnd_columns(
-            lnd_results.get("lnd_1_fsbd", pd.DataFrame())
-        )
-        lnd_others = reduce_lnd_columns(
-            lnd_results.get("lnd_1_others", pd.DataFrame())
-        )
-
-        print("lnd_b2b_cc shape:", lnd_b2b_cc.shape)
-        print("lnd_fsbd shape:", lnd_fsbd.shape)
-        print("lnd_others shape:", lnd_others.shape)
-
-    else:
-        print("\n[SKIP] LND disabled")
 
     # =========================
     # DUMP
