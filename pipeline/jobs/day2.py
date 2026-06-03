@@ -509,7 +509,7 @@ def run():
     runtime_values = {
         "start_date": start_date,
         "end_date": end_date,
-        "b2b_cc": b2b_cc_list[:5],
+        "b2b_cc": b2b_cc_list,
         "fsbd": fsbd_list,
     }
 
