@@ -63,7 +63,36 @@ def tarik_metabase(url, parameters, token, desc):
         return pd.DataFrame()
 
     data = r.json()
-    return pd.DataFrame(data) if data else pd.DataFrame()
+        if not data:
+        return pd.DataFrame()
+
+    if isinstance(data, list):
+        return pd.DataFrame(data)
+
+    if isinstance(data, dict):
+        print(f"[{desc}] Metabase response is dict. Keys: {list(data.keys())}")
+
+        # Kalau formatnya {"data": [...]}
+        if isinstance(data.get("data"), list):
+            return pd.DataFrame(data["data"])
+
+        # Kalau formatnya {"rows": [...]}
+        if isinstance(data.get("rows"), list):
+            return pd.DataFrame(data["rows"])
+
+        # Kalau formatnya {"columns": [...], "rows": [...]}
+        if "columns" in data and "rows" in data:
+            cols = data.get("columns")
+            rows = data.get("rows")
+
+            if isinstance(cols, list) and isinstance(rows, list):
+                return pd.DataFrame(rows, columns=cols)
+
+        print(f"[{desc}] Unexpected dict response, return empty dataframe.")
+        return pd.DataFrame()
+
+    print(f"[{desc}] Unexpected response type: {type(data)}")
+    return pd.DataFrame()
 
 
 def build_params(common_params, extra_params):
