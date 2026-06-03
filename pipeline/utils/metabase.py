@@ -47,11 +47,10 @@ def get_token() -> str:
     print("Using token from Google Sheet config.")
     return token
 
-
 def tarik_metabase(url, parameters, token, desc):
     headers = {
         "Content-Type": "application/x-www-form-urlencoded",
-        "X-Metabase-Session": token
+        "X-Metabase-Session": token,
     }
 
     payload = "parameters=" + quote(json.dumps(parameters))
@@ -62,11 +61,11 @@ def tarik_metabase(url, parameters, token, desc):
         url,
         headers=headers,
         data=payload,
-        timeout=300
+        timeout=300,
     )
 
     if r.status_code != 200:
-        print(f"[{desc}] FAILED: {r.status_code} | {r.text[:300]}")
+        print(f"[{desc}] FAILED: {r.status_code} | {r.text[:500]}")
         return pd.DataFrame()
 
     try:
@@ -74,26 +73,51 @@ def tarik_metabase(url, parameters, token, desc):
     except Exception as e:
         print(f"[{desc}] Invalid JSON response")
         print(repr(e))
+        print(r.text[:500])
         return pd.DataFrame()
 
     if not data:
         return pd.DataFrame()
 
     # =====================
-    # Normal Metabase
+    # Normal Metabase JSON API
+    # Usually: list[dict]
     # =====================
     if isinstance(data, list):
         return pd.DataFrame(data)
 
     # =====================
-    # Dict Response
+    # Dict response
+    # Could be error object or nested result format
     # =====================
     if isinstance(data, dict):
-
         print(
             f"[{desc}] Metabase response is dict. "
             f"Keys: {list(data.keys())}"
         )
+
+        # =====================
+        # Metabase error object
+        # =====================
+        if "error" in data or "error_type" in data:
+            print(f"[{desc}] Metabase query error")
+            print("status:", data.get("status"))
+            print("error_type:", data.get("error_type"))
+            print("class:", data.get("class"))
+            print("error:", data.get("error"))
+
+            if isinstance(data.get("data"), dict):
+                print("data keys:", list(data["data"].keys()))
+
+            stacktrace = data.get("stacktrace")
+            if stacktrace:
+                if isinstance(stacktrace, list):
+                    print("stacktrace preview:")
+                    print("\n".join(map(str, stacktrace[:5])))
+                else:
+                    print("stacktrace:", str(stacktrace)[:500])
+
+            return pd.DataFrame()
 
         # {"data": [...]}
         if isinstance(data.get("data"), list):
@@ -105,37 +129,41 @@ def tarik_metabase(url, parameters, token, desc):
 
         # {"columns": [...], "rows": [...]}
         if "columns" in data and "rows" in data:
-
             cols = data.get("columns")
             rows = data.get("rows")
 
             if isinstance(cols, list) and isinstance(rows, list):
-
                 try:
-                    return pd.DataFrame(
-                        rows,
-                        columns=cols
-                    )
+                    return pd.DataFrame(rows, columns=cols)
                 except Exception as e:
-                    print(
-                        f"[{desc}] Failed create dataframe "
-                        f"from columns/rows"
-                    )
+                    print(f"[{desc}] Failed create dataframe from columns/rows")
                     print(repr(e))
                     return pd.DataFrame()
 
-        print(
-            f"[{desc}] Unexpected dict response. "
-            f"Returning empty dataframe."
-        )
+        # Metabase nested format sometimes:
+        # {"data": {"cols": [...], "rows": [...]}}
+        if isinstance(data.get("data"), dict):
+            inner_data = data["data"]
 
+            cols = inner_data.get("cols")
+            rows = inner_data.get("rows")
+
+            if isinstance(cols, list) and isinstance(rows, list):
+                try:
+                    col_names = [
+                        col.get("name") if isinstance(col, dict) else str(col)
+                        for col in cols
+                    ]
+                    return pd.DataFrame(rows, columns=col_names)
+                except Exception as e:
+                    print(f"[{desc}] Failed create dataframe from data.cols/data.rows")
+                    print(repr(e))
+                    return pd.DataFrame()
+
+        print(f"[{desc}] Unexpected dict response. Returning empty dataframe.")
         return pd.DataFrame()
 
-    print(
-        f"[{desc}] Unexpected response type: "
-        f"{type(data)}"
-    )
-
+    print(f"[{desc}] Unexpected response type: {type(data)}")
     return pd.DataFrame()
 
 
