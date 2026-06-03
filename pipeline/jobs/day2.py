@@ -11,7 +11,7 @@ from config.settings import METABASE_CONFIG, GSHEET
 # =========================
 # RUN CONTROL
 # =========================
-RUN_POA = True
+RUN_POA = False
 RUN_LND = True
 
 DUMP_TRACKER = True
