@@ -53,45 +53,89 @@ def tarik_metabase(url, parameters, token, desc):
         "Content-Type": "application/x-www-form-urlencoded",
         "X-Metabase-Session": token
     }
+
     payload = "parameters=" + quote(json.dumps(parameters))
 
     print(f"Pulling {desc} ...")
-    r = requests.post(url, headers=headers, data=payload)
+
+    r = requests.post(
+        url,
+        headers=headers,
+        data=payload,
+        timeout=300
+    )
 
     if r.status_code != 200:
         print(f"[{desc}] FAILED: {r.status_code} | {r.text[:300]}")
         return pd.DataFrame()
 
-    data = r.json()
-        if not data:
+    try:
+        data = r.json()
+    except Exception as e:
+        print(f"[{desc}] Invalid JSON response")
+        print(repr(e))
         return pd.DataFrame()
 
+    if not data:
+        return pd.DataFrame()
+
+    # =====================
+    # Normal Metabase
+    # =====================
     if isinstance(data, list):
         return pd.DataFrame(data)
 
+    # =====================
+    # Dict Response
+    # =====================
     if isinstance(data, dict):
-        print(f"[{desc}] Metabase response is dict. Keys: {list(data.keys())}")
 
-        # Kalau formatnya {"data": [...]}
+        print(
+            f"[{desc}] Metabase response is dict. "
+            f"Keys: {list(data.keys())}"
+        )
+
+        # {"data": [...]}
         if isinstance(data.get("data"), list):
             return pd.DataFrame(data["data"])
 
-        # Kalau formatnya {"rows": [...]}
+        # {"rows": [...]}
         if isinstance(data.get("rows"), list):
             return pd.DataFrame(data["rows"])
 
-        # Kalau formatnya {"columns": [...], "rows": [...]}
+        # {"columns": [...], "rows": [...]}
         if "columns" in data and "rows" in data:
+
             cols = data.get("columns")
             rows = data.get("rows")
 
             if isinstance(cols, list) and isinstance(rows, list):
-                return pd.DataFrame(rows, columns=cols)
 
-        print(f"[{desc}] Unexpected dict response, return empty dataframe.")
+                try:
+                    return pd.DataFrame(
+                        rows,
+                        columns=cols
+                    )
+                except Exception as e:
+                    print(
+                        f"[{desc}] Failed create dataframe "
+                        f"from columns/rows"
+                    )
+                    print(repr(e))
+                    return pd.DataFrame()
+
+        print(
+            f"[{desc}] Unexpected dict response. "
+            f"Returning empty dataframe."
+        )
+
         return pd.DataFrame()
 
-    print(f"[{desc}] Unexpected response type: {type(data)}")
+    print(
+        f"[{desc}] Unexpected response type: "
+        f"{type(data)}"
+    )
+
     return pd.DataFrame()
 
 
