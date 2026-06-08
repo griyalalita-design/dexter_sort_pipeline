@@ -131,7 +131,8 @@ GSHEET = {
     "lm_mom_recap": {
     "sheet_id": "1kSSSvXLcQYmYZgsl77FenEKbWZpGN9bujG7B_5ImKOU",
     "tabs": {
-        "monthly_snapshot": "Monthly Snapshot"},
+        "monthly_snapshot": "Monthly Snapshot",
+        "mom_analysis": "MOM Analysis},
     },
 }
 
