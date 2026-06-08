@@ -127,6 +127,12 @@ GSHEET = {
         },
         "token_cell": "B2",  # cell tempat token Metabase
     },
+
+    "lm_mom_recap": {
+    "sheet_id": "1kSSSvXLcQYmYZgsl77FenEKbWZpGN9bujG7B_5ImKOU",
+    "tabs": {
+        "monthly_snapshot": "Monthly Snapshot"},
+    },
 }
 
 # ── Metabase ─────────────────────────────────────────────────
