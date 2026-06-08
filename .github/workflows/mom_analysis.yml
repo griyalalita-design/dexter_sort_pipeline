@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  day_mom:
+  mom_analysis:
     runs-on: ubuntu-latest
 
     env:
