@@ -79,7 +79,6 @@ def run():
         df=df_final,
         start_cell="A1",
         include_header=True,)
-    )
 
     print("=== MoM flatten selesai dan dumped ke recap ===")
 
