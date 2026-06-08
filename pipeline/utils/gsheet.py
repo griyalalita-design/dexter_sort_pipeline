@@ -225,6 +225,44 @@ def read_sheet_allow_duplicate_headers(spreadsheet_id: str, sheet_name: str) -> 
 
 import pandas as pd
 
+def read_sheet_with_header_row(
+    spreadsheet_id: str,
+    sheet_name: str,
+    header_row: int,
+) -> pd.DataFrame:
+    ws = open_by_key(spreadsheet_id).worksheet(sheet_name)
+    values = ws.get_all_values()
+
+    if not values:
+        return pd.DataFrame()
+
+    header_idx = header_row - 1
+
+    if len(values) <= header_idx:
+        raise ValueError(f"Sheet tidak punya header_row={header_row}")
+
+    raw_header = values[header_idx]
+    data_rows = values[header_idx + 1:]
+
+    headers = []
+    seen = {}
+
+    for col in raw_header:
+        col = str(col).strip()
+
+        if col == "":
+            col = "blank"
+
+        if col in seen:
+            seen[col] += 1
+            col = f"{col}_{seen[col]}"
+        else:
+            seen[col] = 0
+
+        headers.append(col)
+
+    return pd.DataFrame(data_rows, columns=headers)
+
 
 def flatten_master_tracker(df_master, snapshot_month):
     """
