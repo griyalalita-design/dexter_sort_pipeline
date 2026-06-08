@@ -194,6 +194,35 @@ def mark_sanggahan_open(spreadsheet_id: str, sheet_name: str) -> None:
     # Placeholder: implement column-based update when schema is final
     return
 
+def read_sheet_allow_duplicate_headers(spreadsheet_id: str, sheet_name: str) -> pd.DataFrame:
+    ws = open_by_key(spreadsheet_id).worksheet(sheet_name)
+    values = ws.get_all_values()
+
+    if not values:
+        return pd.DataFrame()
+
+    raw_header = values[0]
+    data_rows = values[1:]
+
+    headers = []
+    seen = {}
+
+    for col in raw_header:
+        col = str(col).strip()
+
+        if col == "":
+            col = "blank"
+
+        if col in seen:
+            seen[col] += 1
+            col = f"{col}_{seen[col]}"
+        else:
+            seen[col] = 0
+
+        headers.append(col)
+
+    return pd.DataFrame(data_rows, columns=headers)
+
 import pandas as pd
 
 
