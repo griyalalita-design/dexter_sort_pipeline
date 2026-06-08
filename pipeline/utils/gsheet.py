@@ -264,76 +264,78 @@ def read_sheet_with_header_row(
     return pd.DataFrame(data_rows, columns=headers)
 
 
-def flatten_master_tracker(df_master, snapshot_month):
-    """
-    Convert Master Tracker by Hub
-    menjadi format long / AI friendly
-
-    Output:
-    snapshot_month
-    hub
-    kpi
-    value
-    tier
-    """
-
-    KPI_MAPPING = [
+def flatten_master_tracker(df_master: pd.DataFrame, snapshot_month: str) -> pd.DataFrame:
+    kpi_mapping = [
         {
-            "kpi": "POA B2B CC",
-            "value_col": "POA-IV B2B All & B2C Cold",
-            "tier_col": "Tier_POA_B2B_CC"
+            "kpi": "POA - IV | B2B All & B2C Cold",
+            "value_col": "POA - IV | B2B All & B2C Cold",
+            "tier_col": "Tier",
         },
         {
-            "kpi": "POA Keyshipper",
-            "value_col": "POA-IV Keyshipper",
-            "tier_col": "Tier_POA_Keyshipper"
+            "kpi": "POA - IV | Keyshipper",
+            "value_col": "POA - IV | Keyshipper",
+            "tier_col": "Tier_1",
         },
         {
-            "kpi": "POA Others",
-            "value_col": "POA-IV Others",
-            "tier_col": "Tier_POA_Others"
+            "kpi": "POA - IV | Others",
+            "value_col": "POA - IV | Others",
+            "tier_col": "Tier_2",
         },
         {
-            "kpi": "LND B2B CC",
-            "value_col": "LnD Rate B2B All & B2C Cold",
-            "tier_col": "Tier_LND_B2B_CC"
+            "kpi": "LnD Rate | B2B All & B2C Cold",
+            "value_col": "LnD Rate | B2B All & B2C Cold",
+            "tier_col": "Tier_3",
         },
         {
-            "kpi": "LND Keyshipper",
-            "value_col": "LnD Rate Keyshipper",
-            "tier_col": "Tier_LND_Keyshipper"
+            "kpi": "LnD Rate | Keyshipper",
+            "value_col": "LnD Rate | Keyshipper",
+            "tier_col": "Tier_4",
         },
         {
-            "kpi": "LND Others",
-            "value_col": "LnD Rate Others",
-            "tier_col": "Tier_LND_Others"
+            "kpi": "LnD Rate | Others",
+            "value_col": "LnD Rate | Others",
+            "tier_col": "Tier_5",
         },
         {
             "kpi": "DWS",
             "value_col": "DWS",
-            "tier_col": "Tier_DWS"
+            "tier_col": "Tier_6",
         },
         {
             "kpi": "CPP",
             "value_col": "CPP",
-            "tier_col": "Tier_CPP"
-        }
+            "tier_col": "Tier_7",
+        },
     ]
 
     rows = []
 
-    for _, row in df_master.iterrows():
+    df = df_master.copy()
+    df.columns = df.columns.astype(str).str.strip()
 
-        hub = row["Hub"]
+    if "Hub" not in df.columns:
+        raise ValueError(f"Kolom Hub tidak ditemukan. Kolom tersedia: {df.columns.tolist()}")
 
-        for mapping in KPI_MAPPING:
+    for _, row in df.iterrows():
+        hub = str(row.get("Hub", "")).strip()
+
+        if not hub or hub.lower() in ["", "nan"]:
+            continue
+
+        for item in kpi_mapping:
+            value_col = item["value_col"]
+            tier_col = item["tier_col"]
+
+            if value_col not in df.columns:
+                print(f"[SKIP] value_col tidak ada: {value_col}")
+                continue
 
             rows.append({
                 "snapshot_month": snapshot_month,
                 "hub": hub,
-                "kpi": mapping["kpi"],
-                "value": row.get(mapping["value_col"]),
-                "tier": row.get(mapping["tier_col"])
+                "kpi": item["kpi"],
+                "value": row.get(value_col, ""),
+                "tier": row.get(tier_col, ""),
             })
 
     return pd.DataFrame(rows)
