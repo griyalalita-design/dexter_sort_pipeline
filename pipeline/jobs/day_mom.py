@@ -8,12 +8,23 @@ from utils.gsheet import (
 from config.settings import GSHEET
 
 
+
 def get_snapshot_month() -> str:
-    months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-              "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    months = [
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    ]
 
     today = datetime.today()
-    return f"{months[today.month - 1]}-{str(today.year)[-2:]}"
+
+    if today.month == 1:
+        month_num = 12
+        year = today.year - 1
+    else:
+        month_num = today.month - 1
+        year = today.year
+
+    return f"{months[month_num - 1]}-{year}"
 
 
 def run():
